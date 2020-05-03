@@ -1,3 +1,140 @@
+html {
+  height: 100%;
+  color: whitesmoke;
+  background-color: black;
+}
+
+body {
+
+  min-height: 100%;
+  background-image: url("img/bg2.jpg");
+  background-size:30%;
+  margin: 0;
+  font-family:Lato, sans-serif;
+}
+
+
+  header {
+    color:white;
+    text-align: center;
+  }
+
+header, footer {
+  background-color: black;
+  width: 100%;
+  min-height: 5vh;
+}
+
+header ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+header ul li {
+  display: inline-block;
+  padding: 0 20px;
+}
+
+header ul li a, .dropdown-content a {
+  text-decoration: none;
+  color: white;
+  font-size: large;
+}
+
+header ul li a:hover {
+  text-decoration: underline;
+}
+
+main {
+  min-height: 90vh;
+}
+
+footer {
+  padding: 20px 0px;
+  color:white;
+  text-align: center;
+}
+
+.visible {
+  visibility: visible;
+}
+
+.dropdown-content {
+  animation: 0.2s ease-out 0s 1 slideInFromUp;
+  display: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 20px;
+  background-color: black;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+#content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height:100vh;
+  background-color: white;
+  opacity: 0.95;
+  border-left-style: solid;
+  border-right-style:solid;
+  border-left-width: 5px;
+  border-right-width: 5px;
+  border-color: black;
+}
+
+#header-container, #content {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1140px;
+}
+
+#logo{
+  color:white;
+}
+
+#menu-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#menu-bar>div {
+  padding: 20px;
+}
+
+
+
+@keyframes slideInFromLeft {
+  0% {
+      transform: translateX(-100%);
+  }
+  100% {
+      transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromUp {
+  0% {
+      transform: translateY(-100%);
+  }
+  100% {
+      transform: translateY(0);
+  }
+}
+@media screen and (min-width:480 px){
+  
+}
+
+
 .App {
   text-align: center;
 }
@@ -14,14 +151,14 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: white;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  /*color: white;*/
 }
 
 .App-link {
