@@ -12,11 +12,8 @@ export class ComputerDetails extends Component {
 
   }
 
-
   componentDidMount() {
     let url = "http://localhost:8080/api/v1/computers/" + this.props.match.params.id;
-    //console.log(fetch(url));
-    //console.log(fetch(url));
     fetch(url)
       .then(res => res.json())
       .then(
@@ -51,10 +48,11 @@ export class ComputerDetails extends Component {
       return (
         <div>
           <span class="d-block p-2 bg-primary text-white">Szczegółowe dane komputera</span>
+          <a href="http://localhost:3000/computers/add" class="btn btn-warning m-2">Edycja</a>
           <form>
             <div class="form-group">
               <label for="deviceID">ID urządzenia</label>
-              <input type="text" class="form-control" id="deviceID" value={this.state.computer.deviceId}  />
+              <input type="text" class="form-control" id="deviceID" value={this.state.computer.deviceId} />
               <label for="producer">Producent</label>
               <input type="text" class="form-control" id="producer" value={this.state.computer.producer}></input>
               <label for="model">Model</label>
@@ -67,17 +65,15 @@ export class ComputerDetails extends Component {
               <input type="text" class="form-control" id="hdd" value={this.state.computer.hdd}></input>
               <label for="ip">IP</label>
               <input type="text" class="form-control" id="ip" value={this.state.computer.ipAddress}></input>
-              <label for="ip">MAC</label>
-              <input type="text" class="form-control" id="ip" value={this.state.computer.macAddress}></input>
-
+              <label for="ip">Nazwa</label>
+              <input type="text" class="form-control" id="mac" value={this.state.computer.macAddress}></input>
             </div>
           </form>
-        
+          <a href="http://localhost:3000/computers/add" class="btn btn-success m-2">Zapisz</a>
         </div>
       )
     }
   }
-
 }
 
 export default ComputerDetails
