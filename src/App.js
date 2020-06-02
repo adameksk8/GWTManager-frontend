@@ -47,6 +47,7 @@ export class App extends Component {
             </div>
           </header>
           <main>
+            
 
             <Switch>
               <Route exact path="/computers"><Computers /></Route>
