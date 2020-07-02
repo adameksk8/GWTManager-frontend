@@ -1,15 +1,14 @@
-
 import React, { Component } from 'react';
 import Config from '../Config'
 import Loading from '../Loading';
-export class Computers extends Component {
+export class Routers extends Component {
   constructor(props) {
     super(props);
     this.state = {
       error: null,
       isLoaded: false,
-      computers: [],
-      tempComputers: [], //kopia, na której nie wykonujemy żadnych zmian
+      routers: [],
+      tempRouters: [], //kopia, na której nie wykonujemy żadnych zmian
       sortedBy: 'IDAsc',
       filterBy: 'ID',
       filterInputValue: ''
@@ -21,21 +20,16 @@ export class Computers extends Component {
     this.handleFilterData = this.handleFilterData.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
   }
-  handleDeleteClick = computerId => {
+  handleDeleteClick = routerId => {
     let confirmDelete = window.confirm("Czy na pewno usunąć?");
     if (confirmDelete) {
       const requestOptions = {
-        method: 'DELETE',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
-        }
+        method: 'DELETE'
       };
-      fetch(Config.serverAddress + "/api/v1/computers/" + computerId, requestOptions).then((response) => {
+
+      fetch(Config.serverAddress + "/api/v1/routers/" + routerId, requestOptions).then((response) => {
         return response.json();
       }).then((result) => {
-        console.log(result);
         console.log("Usunięto");
         alert("Usunięto");
       })
@@ -46,18 +40,18 @@ export class Computers extends Component {
   }
   handleSortByID() {
     if (this.state.sortedBy !== 'IDAsc') {
-      this.state.computers.sort((a, b) => a.deviceId > b.deviceId ? 1 : -1)
+      this.state.routers.sort((a, b) => a.deviceId > b.deviceId ? 1 : -1)
       this.setState({ sortedBy: 'IDAsc' })
     }
     else {
-      this.state.computers.sort((a, b) => a.deviceId < b.deviceId ? 1 : -1)
+      this.state.routers.sort((a, b) => a.deviceId < b.deviceId ? 1 : -1)
       this.setState({ sortedBy: 'IDDesc' })
     }
     this.forceUpdate();
   }
   handleSortByOwner() {
     if (this.state.sortedBy !== 'OwnerAsc') {
-      this.state.computers.sort((a, b) => {
+      this.state.routers.sort((a, b) => {
         if (a.owner === null || a.owner.lastName === null) return -1;
         if (b.owner === null || b.owner.lastName === null) return 1;
         return a.owner.lastName > b.owner.lastName ? 1 : -1
@@ -65,7 +59,7 @@ export class Computers extends Component {
       this.setState({ sortedBy: 'OwnerAsc' })
     }
     else {
-      this.state.computers.sort((a, b) => {
+      this.state.routers.sort((a, b) => {
         if (a.owner === null || a.owner.lastName === null) return -1;
         if (b.owner === null || b.owner.lastName === null) return 1;
         return a.owner.lastName < b.owner.lastName ? 1 : -1
@@ -76,22 +70,22 @@ export class Computers extends Component {
   }
   handleSortByIP() {
     if (this.state.sortedBy !== 'IPAsc') {
-      this.state.computers.sort((a, b) => a.ipAddress > b.ipAddress ? 1 : -1)
+      this.state.routers.sort((a, b) => a.ipAddress > b.ipAddress ? 1 : -1)
       this.setState({ sortedBy: 'IPAsc' })
     }
     else {
-      this.state.computers.sort((a, b) => a.ipAddress < b.ipAddress ? 1 : -1)
+      this.state.routers.sort((a, b) => a.ipAddress < b.ipAddress ? 1 : -1)
       this.setState({ sortedBy: 'IPDesc' })
     }
     this.forceUpdate();
   }
   handleSortByAdName() {
     if (this.state.sortedBy !== 'AdNameAsc') {
-      this.state.computers.sort((a, b) => a.adName > b.adName ? 1 : -1)
+      this.state.routers.sort((a, b) => a.adName > b.adName ? 1 : -1)
       this.setState({ sortedBy: 'AdNameAsc' })
     }
     else {
-      this.state.computers.sort((a, b) => a.adName < b.adName ? 1 : -1)
+      this.state.routers.sort((a, b) => a.adName < b.adName ? 1 : -1)
       this.setState({ sortedBy: 'AdNameDesc' })
     }
     this.forceUpdate();
@@ -99,46 +93,37 @@ export class Computers extends Component {
   handleFilterChange(Event) {
     this.setState({ filterBy: Event.target.value })
     this.setState({ filterInputValue: "" })
-    this.setState({ computers: this.state.tempComputers })
-    //this.state.computers = this.state.tempComputers;
+    this.setState({ routers: this.state.tempRouters })
     this.forceUpdate();
   }
   handleFilterData(Event) {
     if (Event.target.value === '') {
-      this.setState({ computers: this.state.tempComputers })
+      this.setState({ routers: this.state.tempRouters })
       this.setState({ filterInputValue: "" })
       this.forceUpdate();
     }
     else {
       this.setState({ filterInputValue: Event.target.value })
       let pattern = Event.target.value;
-      console.log(pattern);
-      this.setState({ computers: this.state.tempComputers })
+      this.setState({ routers: this.state.tempRouters })
       let result = [];
-      if (this.state.filterBy === 'ID') result = this.state.computers.filter((element) => (element.deviceId != null) ? new RegExp(pattern).test(element.deviceId) : false);
-      if (this.state.filterBy === 'Owner') result = this.state.computers.filter((element) => (element.owner != null) ? new RegExp(pattern).test(element.owner.lastName) : false);
-      if (this.state.filterBy === 'IP') result = this.state.computers.filter((element) => (element.ipAddress != null) ? new RegExp(pattern).test(element.ipAddress) : false);
-      if (this.state.filterBy === 'AdName') result = this.state.adName.filter((element) => (element.adName != null) ? new RegExp(pattern).test(element.adName) : false);
-      this.setState({ computers: result })
+      if (this.state.filterBy === 'ID') result = this.state.routers.filter((element) => (element.deviceId != null) ? new RegExp(pattern).test(element.deviceId) : false);
+      if (this.state.filterBy === 'Owner') result = this.state.routers.filter((element) => (element.owner != null) ? new RegExp(pattern).test(element.owner.lastName) : false);
+      if (this.state.filterBy === 'IP') result = this.state.routers.filter((element) => (element.ipAddress != null) ? new RegExp(pattern).test(element.ipAddress) : false);
+      if (this.state.filterBy === 'AdName') result = this.state.routers.filter((element) => (element.adName != null) ? new RegExp(pattern).test(element.adName) : false);
+      this.setState({ routers: result })
       this.forceUpdate();
     }
   }
   componentDidMount() {
-    const requestOptions = {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
-      }
-    };
-    console.log(requestOptions);
-    fetch(Config.serverAddress + "/api/v1/computers", requestOptions)
+    fetch(Config.serverAddress + "/api/v1/routers")
       .then(res => res.json())
       .then(
         (result) => {
           this.setState({
             isLoaded: true,
-            computers: result,
-            tempComputers: result
+            routers: result,
+            tempRouters: result
           });
         },
         // Uwaga: to ważne, żeby obsłużyć błędy tutaj, a
@@ -153,17 +138,16 @@ export class Computers extends Component {
       )
   }
   render() {
-    const { error, isLoaded, computers } = this.state;
+    const { error, isLoaded, routers } = this.state;
     if (error) {
       return <div>Błąd: {error.message}</div>;
     } else if (!isLoaded) {
-      return <Loading />;
+      return <Loading/>;
     } else {
       return (
         <div>
-          {console.log(computers)}
-          <h1>Lista komputerów</h1>
-          <a href={Config.pageAddress + "/computers/add"} class="btn btn-success m-2">Dodaj nowy</a>
+          <h1>Lista routerów</h1>
+          <a href={Config.pageAddress + "/routers/add"} class="btn btn-success m-2">Dodaj nowy</a>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
               <label class="input-group-text" for="inputGroupSelect01">Filtruj</label>
@@ -188,33 +172,32 @@ export class Computers extends Component {
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(this.state.computers) && computers.map(computer => (
-                <tr key={computer.identifier}>
-                  {computer.deviceId
-                    ? <td>{computer.deviceId}</td>
+              {Array.isArray(this.state.routers) && routers.map(device => (
+
+                <tr key={device.identifier}>
+                  {device.deviceId
+                    ? <td>{device.deviceId}</td>
                     : <td>-</td>
                   }
-                  {computer.owner != null
-                    ? <td><a href={Config.pageAddress + "/users/" + computer.owner.id} class="btn btn-light">{computer.owner.firstName} {computer.owner.lastName}</a></td>
+                  {device.owner != null
+                    ? <td><a href={Config.pageAddress + "/users/" + device.owner.identifier} class="btn btn-light">{device.owner.firstName} {device.owner.lastName}</a></td>
                     : <td>-</td>//Można dodać później przycisk, który pozwoli na późniejsze przypisywanie właściciela
                   }
-                  {computer.ipAddress
-                    ? <td>{computer.ipAddress}</td>
+                  {device.ipAddress
+                    ? <td>{device.ipAddress}</td>
                     : <td>-</td>
                   }
-                  {computer.adName
-                    ? <td>{computer.adName}</td>
+                  {device.adName
+                    ? <td>{device.adName}</td>
                     : <td>-</td>
                   }
-                  <td><a class="btn btn-primary b-2" href={Config.pageAddress + "/computers/" + computer.identifier + "/users/"}>Wyświetl ({computer.usedBy != null ? computer.usedBy.length : 0})</a></td>
-                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/computers/" + computer.identifier}>Szczegóły</a></td>
+                  <td><a class="btn btn-primary b-2" href={Config.pageAddress + "/routers/" + device.identifier + "/users/"}>Wyświetl ({device.usedBy != null ? device.usedBy.length : 0})</a></td>
+                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/routers/" + device.identifier}>Szczegóły</a></td>
                   <td><button class="btn btn-danger b-2" onClick={() => {
-                    this.handleDeleteClick(computer.identifier);
+                    this.handleDeleteClick(device.identifier);
                   }}>Usuń</button></td>
                 </tr>
-              ))
-              }
-
+              ))}
             </tbody>
           </table>
         </div >
@@ -222,4 +205,4 @@ export class Computers extends Component {
     }
   }
 }
-export default Computers
+export default Routers

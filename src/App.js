@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Computers from './Computer/Computers'
 import ComputerDetails from './Computer/ComputerDetails'
@@ -7,6 +6,13 @@ import ComputerAdd from './Computer/ComputerAdd'
 import Users from './User/Users'
 import UsersOfComputer from './User/UsersOfComputer'
 import UserDetails from './User/UserDetails'
+import UserAdd from './User/UserAdd'
+import Switches from './Switch/Switches'
+import Routers from './Router/Routers'
+import Devices from './Device/Devices'
+import Login from './Login/Login'
+import Logout from './Login/Logout'
+import Home from './Home'
 import {
   BrowserRouter as Router,
   Switch,
@@ -15,10 +21,18 @@ import {
 } from 'react-router-dom';
 
 export class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      username: localStorage.getItem("username"),
+      authentication: localStorage.getItem("Authentication")
+    };
+  }
+
   render() {
     return (
       <Router>
-        <div id="content">
+        <div id="content" class="container px-0">
           <header>
             <div id="header-container">
               <div id="menu-bar">
@@ -32,34 +46,66 @@ export class App extends Component {
                 <div>
                   <ul>
                     <li><Link to="/">Strona główna</Link></li>
-                    <li className="dropdown"><a href="#" className="dropbtn">Zarządzaj</a>
-                      <div className="dropdown-content">
-                        <Link to="/users">Użytkownicy</Link>
-                        <Link to="/computers">Komputery</Link>
-                      </div>
-                    </li>
-                    <li><a href="#">Item 1</a></li>
-                    <li><a href="#">Item 2</a></li>
-                    <li><a href="#">Item 3</a></li>
+                    {this.state.username != null &&
+                      <li className="dropdown"><a href="/devices" className="dropbtn">Sprzęt</a>
+                        <div className="dropdown-content">
+                          <Link to="/computers">Komputery</Link>
+                          <Link to="/switches">Switche</Link>
+                          <Link to="/routers">Routery</Link>
+                        </div>
+                      </li>
+                    }
+                    {this.state.username != null &&
+                      <li className="dropdown"><a href="#" className="dropbtn">Użytkownicy</a>
+                        <div className="dropdown-content">
+                          <Link to="/users">Użytkownicy</Link>
+                        </div>
+                      </li>
+                    }
+                    {this.state.username != null &&
+                      <li className="dropdown"><a href="#" className="dropbtn">Lokalizacje</a>
+                        <div className="dropdown-content">
+                          <Link to="/site">Kompleks</Link>
+                          <Link to="/building">Budynek</Link>
+                          <Link to="/floor">Piętro</Link>
+                          <Link to="/room">Pomieszczenie</Link>
+                        </div>
+                      </li>
+                    }
+                    {this.state.username != null &&
+                      <li><a href="/logout"> Wyloguj ({this.state.username})</a></li>
+                    }
+                    {this.state.username == null &&
+                      <li><a href="/login"> Zaloguj się</a></li>
+                    }
+                    {this.state.username == null &&
+                      <li><a href="/register">Zarejestruj się</a></li>
+                    }
                   </ul>
                 </div>
               </div>
             </div>
           </header>
           <main>
-            
-
             <Switch>
+              <Route exact path="/"><Home /></Route>
+              <Route exact path="/home"><Home /></Route>
               <Route exact path="/computers"><Computers /></Route>
               <Route path="/computers/add"><ComputerAdd /></Route>
               <Route path="/computers/:id/users" component={UsersOfComputer}></Route>
               <Route path="/computers/:id" component={ComputerDetails}></Route>
+              <Route exact path="/users"><Users /></Route>
+              <Route path="/users/add"><UserAdd /></Route>
               <Route path="/users/:id" component={UserDetails}></Route>
-              <Route path="/users"><Users /></Route>
+              <Route exact path="/switches"><Switches /></Route>
+              <Route exact path="/routers"><Routers /></Route>
+              <Route exact path="/devices"><Devices /></Route>
+              <Route exact path="/login"><Login /></Route>
+              <Route exact path="/logout"><Logout /></Route>
             </Switch>
           </main>
           <footer>
-            &copy;Adam Nowak
+            GWTManager! v1.0 &copy;Adam Nowak
           </footer>
         </div>
       </Router>

@@ -44,6 +44,7 @@ header ul li a, .dropdown-content a {
 
 header ul li a:hover {
   text-decoration: underline;
+  color:white;
 }
 
 main {
@@ -173,3 +174,4 @@ footer {
     transform: rotate(360deg);
   }
 }
+

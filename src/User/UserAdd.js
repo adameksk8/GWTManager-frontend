@@ -1,22 +1,23 @@
+
 import React, { Component } from 'react';
 import Config from '../Config';
-export class UserDetails extends Component {
-  //na pozniej zrobic tak aby przycisk edytuj odblokowywał formularze
+export class UserAdd extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
       error: null,
       isLoaded: false,
-      id: '',
-      firstName: '',
+      computer: null,
+      id:'',
+      firstName:'',
       lastName: '',
+      email:'',
       pesel:'',
       role:'',
-      email: '',
-      phone: '',
-      mobilePhone: '',
-      voip: '',
-      formDisabled: 'disabled'
+      phone:'',
+      mobilePhone:'',
+      voip:''
     };
     this.handleChangeFirstName = this.handleChangeFirstName.bind(this);
     this.handleChangeLastName = this.handleChangeLastName.bind(this);
@@ -26,13 +27,7 @@ export class UserDetails extends Component {
     this.handleChangePhone = this.handleChangePhone.bind(this);
     this.handleChangeMobilePhone = this.handleChangeMobilePhone.bind(this);
     this.handleChangeVoip = this.handleChangeVoip.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleClickEdit = this.handleClickEdit.bind(this);
-  }
-
-  handleClickEdit(event) {
-    console.log(this.state.formDisabled)
-    this.setState({formDisabled : false})
+    this.handleSubmit=this.handleSubmit.bind(this);
   }
   handleChangeFirstName(event) {
     this.setState({ firstName: event.target.value });
@@ -62,83 +57,35 @@ export class UserDetails extends Component {
   async handleSubmit(event) {
     event.preventDefault();
     const item = {
-      id: this.state.id,
-      firstName: this.state.firstName,
-      lastName: this.state.lastName,
-      pesel: this.state.pesel,
-      role: this.state.role,
-      email: this.state.email,
-      phone: this.state.phone,
-      mobilePhone: this.state.mobilePhone,
-      voip: this.state.voip
+      firstName:this.state.firstName,
+      lastName:this.state.lastName,
+      email:this.state.email,
+      pesel:this.state.pesel,
+      role:this.state.role,
+      phone:this.state.phone,
+      mobilePhone:this.state.mobilePhone,
+      voip:this.state.voip
     }
-    console.log("Body" + JSON.stringify(item));
+    console.log("Body"+JSON.stringify(item));
 
-    await fetch(Config.serverAddress+'/api/v1/users/' + this.state.id, {
-      method: 'PUT',
+    await fetch(Config.serverAddress+'/api/v1/users/', {
+      method:'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Authorization': 'Bearer '+localStorage.getItem('Authorization')
       },
-      body: JSON.stringify(item),
+      body: JSON.stringify(item), 
     }
     );
     alert("Zapisano");
+    this.forceUpdate();
   }
-
-  componentDidMount() {
-    const requestOptions={
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+localStorage.getItem('Authorization')
-      },
-    }
-    fetch(Config.serverAddress+"/api/v1/users/" + this.props.match.params.id, requestOptions)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            isLoaded: true,
-            //user: result,
-            id: result.id,
-            firstName: result.firstName,
-            lastName: result.lastName,
-            email: result.email,
-            pesel: result.pesel,
-            role: result.role,
-            phone: result.phone,
-            mobilePhone: result.mobilePhone,
-            voip: result.voip
-          });
-          //console.log(this.state.user)
-        },
-        // Uwaga: to ważne, żeby obsłużyć błędy tutaj, a
-        // nie w bloku catch(), aby nie przetwarzać błędów
-        // mających swoje źródło w komponencie.
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
-        }
-      )
-  }
-
   render() {
-    let { error, isLoaded} = this.state;
-    if (error) {
-      return <div>Błąd: {error.message}</div>;
-    } else if (!isLoaded) {
-      return <div class="spinner-border" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>;
-    } else {
-      return (
-        <div>
-          <span class="d-block p-2 bg-primary text-white">Szczegółowe dane użytkownika</span>
-          <form>
+    return (
+      <div>
+        <span class="d-block p-2 bg-primary text-white">Wpisz dane użytkownika</span>
+        <form>
             <div class="form-group">
               <label for="imie">Imię</label>
               <input type="text" class="form-control" id="imie" value={this.state.firstName} onChange={this.handleChangeFirstName} />
@@ -152,16 +99,15 @@ export class UserDetails extends Component {
               <input type="text" class="form-control" id="email" value={this.state.email} onChange={this.handleChangeEmail} /*disabled={this.state.formDisabled}*/></input>
               <label for="phone">Nr telefonu</label>
               <input type="telephone" class="form-control" id="phone" value={this.state.phone} onChange={this.handleChangePhone} />
-              <label for="phone">Nr telefonu (komórkowy)</label>
+              <label for="mobilePhone">Nr telefonu (komórkowy)</label>
               <input type="telephone" class="form-control" id="mobilePhone" value={this.state.mobilePhone} onChange={this.handleChangeMobilePhone} />
-              <label for="phone">Nr telefonu (VoIP)</label>
+              <label for="voip">Nr telefonu (VoIP)</label>
               <input type="telephone" class="form-control" id="voip" value={this.state.voip} onChange={this.handleChangeVoip} />
-              <input type="submit" class="btn btn-success m-2" value="Zapisz" onClick={this.handleSubmit} />
             </div>
           </form>
-        </div>
-      )
-    }
+        <a href={Config.pageAddress+"/users/add"} class="btn btn-success" onClick={this.handleSubmit}>Zapisz</a>
+      </div>
+    )
   }
 }
-export default UserDetails
+export default UserAdd
