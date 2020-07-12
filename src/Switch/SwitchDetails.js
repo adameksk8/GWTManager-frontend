@@ -3,25 +3,19 @@ import React, { Component } from 'react';
 import Config from '../Config'
 import validateInput from '../functions/validateInput';
 import validateID from '../functions/validateID';
-export class ComputerDetails extends Component {
+export class SwitchDetails extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
       error: null,
       isLoaded: false,
-      //computer: '',
-      //tempComputer:'',
-      computers: [],
+      switches: [],
       users: [],
       id: '',
       deviceId: '',
-      adName:'',
       producer: '',
       model: '',
-      cpu: '',
-      ram: '',
-      hdd: '',
       ipAddress: '',
       macAddress: '',
       owner: '',
@@ -49,7 +43,7 @@ export class ComputerDetails extends Component {
     }
     console.log("Body" + JSON.stringify(item));
 
-    await fetch(Config.serverAddress + '/api/v1/computers/' + this.state.id, {
+    await fetch(Config.serverAddress + '/api/v1/switches/' + this.state.id, {
       method: 'PUT',
       headers: {
         'Accept': 'application/json',
@@ -69,7 +63,7 @@ export class ComputerDetails extends Component {
         'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
       }
     }
-    let url = Config.serverAddress + "/api/v1/computers/" + this.props.match.params.id;
+    let url = Config.serverAddress + "/api/v1/switches/" + this.props.match.params.id;
     fetch(url, requestOptions)
       .then(res => {
         console.log(res);
@@ -87,17 +81,13 @@ export class ComputerDetails extends Component {
             isLoaded: true,
             id: result.id,
             deviceId: result.deviceId,
-            adName: result.adName,
             producer: result.producer,
             model: result.model,
-            cpu: result.cpu,
-            ram: result.ram,
-            hdd: result.hdd,
             ipAddress: result.ipAddress,
             macAddress: result.macAddress,
             owner: result.owner
           });
-          console.log(this.state.computer)
+          console.log(this.state.switchr)
         },
         // Uwaga: to ważne, żeby obsłużyć błędy tutaj, a
         // nie w bloku catch(), aby nie przetwarzać błędów
@@ -110,13 +100,13 @@ export class ComputerDetails extends Component {
         }
       )
 
-    fetch(Config.serverAddress + "/api/v1/computers", requestOptions)
+    fetch(Config.serverAddress + "/api/v1/switches", requestOptions)
       .then(res => res.json())
       .then(
         (result) => {
           this.setState({
             isLoaded: true,
-            computers: result
+            switches: result
           });
         },
         // Uwaga: to ważne, żeby obsłużyć błędy tutaj, a
@@ -163,11 +153,11 @@ export class ComputerDetails extends Component {
     } else {
       return (
         <div>
-          <span class="d-block p-2 bg-primary text-white">Szczegółowe dane komputera</span>
+          <span class="d-block p-2 bg-primary text-white">Szczegółowe dane switcha</span>
           <form class={document.getElementsByClassName("is-invalid").length == 0 ? "was-validated" : ""}>
             <div class="form-group">
               <label for="deviceID" >ID urządzenia</label>
-              <input type="number" placeholder="Wpisz ID komputera" class="form-control is-valid " id="deviceID" defaultValue={this.state.deviceId} onChange={(event) => {
+              <input type="number" placeholder="Wpisz ID switcha" class="form-control is-valid " id="deviceID" defaultValue={this.state.deviceId} onChange={(event) => {
                 if (this.validateInput(event.target, new RegExp('^[0-9]{4,6}$')) && this.validateID(event.target)) this.setState({ deviceId: event.target.value })
               }
               } />
@@ -189,20 +179,12 @@ export class ComputerDetails extends Component {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ adName: event.target.value.toLocaleUpperCase() });
             }}></input>
             <label for="producer">Producent</label>
-            <input type="text" placeholder="Wpisz producenta komputera" class="form-control is-valid" id="producer" defaultValue={this.state.producer} required onChange={(event) => {
+            <input type="text" placeholder="Wpisz producenta switcha" class="form-control is-valid" id="producer" defaultValue={this.state.producer} required onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ producer: event.target.value });
             }}></input>
             <label for="model">Model</label>
-            <input type="text" placeholder="Wpisz model komputera" class="form-control is-valid" id="model" defaultValue={this.state.model} required onChange={(event) => {
+            <input type="text" placeholder="Wpisz model switcha" class="form-control is-valid" id="model" defaultValue={this.state.model} required onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ model: event.target.value });
-            }}></input>
-              <label for="cpu">Procesor</label>
-              <input type="text" class="form-control" id="cpu" defaultValue={this.state.cpu} onChange={this.handleChangeCpu}></input>
-              <label for="ram">RAM</label>
-              <input type="text" class="form-control" id="ram" defaultValue={this.state.ram} onChange={this.handleChangeRam}></input>
-              <label for="model">Dysk twardy</label>
-              <input type="text" placeholder="Wpisz dane dysku twardego" class="form-control is-valid" id="hdd" value={this.state.hdd} onChange={(event) => {
-              if (this.validateInput(event.target, new RegExp('^($|[0-9a-zA-Z]{5,50}$)'))) this.setState({ hdd: event.target.value });
             }}></input>
             <label for="ip">IP</label>
             <input type="text" placeholder="Wpisz adres IP" class="form-control is-valid" id="ip" defaultValue={this.state.ipAddress} onChange={(event) => {
@@ -227,4 +209,4 @@ export class ComputerDetails extends Component {
     }
   }
 }
-export default ComputerDetails
+export default SwitchDetails

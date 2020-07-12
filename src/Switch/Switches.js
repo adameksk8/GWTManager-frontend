@@ -125,7 +125,7 @@ export class Switches extends Component {
         'Authorization': 'Bearer '+localStorage.getItem('Authorization')
       }
   };
-    fetch(Config.serverAddress + "/api/v1/switches")
+    fetch(Config.serverAddress + "/api/v1/switches", requestOptions)
       .then(res => res.json())
       .then(
         (result) => {
@@ -176,14 +176,13 @@ export class Switches extends Component {
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByOwner} >Właściciel</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByIP} >IP</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByAdName} >Nazwa AD</button></th>
-                <th scope="col">Użytkownicy</th>
                 <th scope="col" colspan="2">Operacje</th>
               </tr>
             </thead>
             <tbody>
+              {console.log(this.state.switches)}
               {Array.isArray(this.state.switches) &&
               switches.map(device => (
-
                 <tr key={device.identifier}>
                   {device.deviceId
                     ? <td>{device.deviceId}</td>
@@ -201,7 +200,6 @@ export class Switches extends Component {
                     ? <td>{device.adName}</td>
                     : <td>-</td>
                   }
-                  <td><a class="btn btn-primary b-2" href={Config.pageAddress + "/switches/" + device.identifier + "/users/"}>Wyświetl ({device.usedBy != null ? device.usedBy.length : 0})</a></td>
                   <td><a class="btn btn-info b-2" href={Config.pageAddress + "/switches/" + device.identifier}>Szczegóły</a></td>
                   <td><button class="btn btn-danger b-2" onClick={() => {
                     this.handleDeleteClick(device.identifier);

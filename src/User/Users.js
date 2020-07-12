@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import Config from '../Config';
 import Loading from '../Loading';
-import Modal from '../Modal';
+import ModalConfirmDelete from '../ModalConfirmDelete';
+import { ModalError } from '../ModalError';
+import $ from 'jquery';
 export class Users extends Component {
 
   constructor(props) {
@@ -16,6 +18,7 @@ export class Users extends Component {
       filterInputValue: '',
       paginationSelected: '1',
       itemsPerPage: 20,
+      itemToDelete: ''
     };
     this.handleSortByFirstName = this.handleSortByFirstName.bind(this);
     this.handleSortByLastName = this.handleSortByLastName.bind(this);
@@ -24,9 +27,9 @@ export class Users extends Component {
     this.handleFilterChange = this.handleFilterChange.bind(this);
     this.handlePaginationClick = this.handlePaginationClick.bind(this);
   }
-test(param){
-  console.log("test"+param);
-}
+  test(param) {
+    console.log("test" + param);
+  }
 
   handlePaginationClick(Event) {
     if (Event.target.innerText == 'Poprzednia') {
@@ -49,30 +52,34 @@ test(param){
   }
 
   handleDeleteClick = () => {
-    // let confirmDelete = window.confirm("Czy na pewno usunąć?");
-    // if (confirmDelete) {
     const requestOptions = {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+        'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
       }
     };
 
     // Note: I'm using arrow functions inside the `.fetch()` method.
     // This makes it so you don't have to bind component functions like `setState`
     // to the component.
+if (this.state.itemToDelete){
+  fetch(Config.serverAddress + "/api/v1/users/" + this.state.itemToDelete.id, requestOptions).then((response) => {
+    if (response.status===200){
+    this.state.users.splice(this.state.users.findIndex(a=>a.id===this.state.itemToDelete.id),1);
+    this.forceUpdate();
+    return response.json()
+    }
+    else {
+      $('#modalError').modal('show');
+ 
 
-    fetch(Config.serverAddress + "/api/v1/users/" + this.state.itemToDelete, requestOptions).then((response) => {
-      return response.json();
-    }).then((result) => {
-    })
-      .then(() => {
-        //window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
-      });
-    // }
-  }
+    }
+  })
+}
+}
+
   handleSortByFirstName() {
     if (this.state.sortedBy !== 'FirstNameAsc') {
       this.state.users.sort((a, b) => a.firstName.localeCompare(b.firstName))
@@ -115,7 +122,7 @@ test(param){
   handleFilterData(Event) {
     let users = this.state.tempUsers.slice();
     this.setState({ filterInputValue: Event.target.value })
-    let pattern = Event.target.value;
+    let pattern = "^" + Event.target.value;
     let result = [];
     if (this.state.filterBy === 'firstName') { result = users.filter((element) => new RegExp(pattern).test(element.firstName)) }
     else if (this.state.filterBy === 'lastName') { result = users.filter((element) => new RegExp(pattern).test(element.lastName)) }
@@ -124,13 +131,13 @@ test(param){
   }
   componentDidMount() {
     const requestOptions = {
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+        'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
       }
-  };
-  console.log(requestOptions.headers);
-  console.log(localStorage.getItem('username'));
+    };
+    console.log(requestOptions.headers);
+    console.log(localStorage.getItem('username'));
     fetch(Config.serverAddress + "/api/v1/users", requestOptions)
       .then(res => res.json())
       .then(
@@ -183,8 +190,6 @@ test(param){
                 <a class="page-link" onClick={this.handlePaginationClick} href="#" tabindex="-1">Poprzednia</a>
               </li>
               <li class="page-item"><a class="page-link" onClick={this.handlePaginationClick} href="#">1</a></li>
-              <li class="page-item"><a class="page-link" onClick={this.handlePaginationClick} href="#">2</a></li>
-              <li class="page-item"><a class="page-link" onClick={this.handlePaginationClick} href="#">3</a></li>
               <li class="page-item">
                 <a class="page-link" onClick={this.handlePaginationClick} href="#">Następna</a>
               </li>
@@ -200,20 +205,21 @@ test(param){
             </thead>
             <tbody>
               {Array.isArray(this.state.users) && users.map(user => (
-                  <tr>
-                    <td>{user.firstName}</td>
-                    <td>{user.lastName}</td>
-                    <td>{user.email}</td>
-                    <td>{user.role}</td>
-                    <td><a class="btn btn-info b-2" href={Config.pageAddress + "/users/" + user.id}>Szczegóły</a></td>
-                    <td><button type="button" class="btn btn-danger b-2" data-toggle="modal" data-target="#staticBackdrop" onClick={() => {
-                      //this.handleDeleteClick(user.id);
-                    }}>Usuń</button></td>
-                  </tr>
-                ))}
+                <tr key={user.id}>
+                  <td>{user.firstName}</td>
+                  <td>{user.lastName}</td>
+                  <td>{user.email}</td>
+                  <td>{user.role}</td>
+                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/users/" + user.id}>Szczegóły</a></td>
+                  <td><button type="button" class="btn btn-danger b-2" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
+                    this.setState({ itemToDelete: user })
+                  }}>Usuń</button></td>
+                </tr>
+              ))}
             </tbody>
           </table>
-          <Modal handleConfirmClick={this.test}/>
+          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} />
+          <ModalError />
         </div>
       );
     }

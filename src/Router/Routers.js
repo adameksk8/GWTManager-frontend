@@ -24,9 +24,11 @@ export class Routers extends Component {
     let confirmDelete = window.confirm("Czy na pewno usunąć?");
     if (confirmDelete) {
       const requestOptions = {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 
+          'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+        }
       };
-
       fetch(Config.serverAddress + "/api/v1/routers/" + routerId, requestOptions).then((response) => {
         return response.json();
       }).then((result) => {
@@ -116,7 +118,13 @@ export class Routers extends Component {
     }
   }
   componentDidMount() {
-    fetch(Config.serverAddress + "/api/v1/routers")
+    const requestOptions = {
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+      }
+    }
+    fetch(Config.serverAddress + "/api/v1/routers",requestOptions)
       .then(res => res.json())
       .then(
         (result) => {
@@ -142,7 +150,7 @@ export class Routers extends Component {
     if (error) {
       return <div>Błąd: {error.message}</div>;
     } else if (!isLoaded) {
-      return <Loading/>;
+      return <Loading />;
     } else {
       return (
         <div>
@@ -167,7 +175,6 @@ export class Routers extends Component {
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByOwner} >Właściciel</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByIP} >IP</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByAdName} >Nazwa AD</button></th>
-                <th scope="col">Użytkownicy</th>
                 <th scope="col" colspan="2">Operacje</th>
               </tr>
             </thead>
@@ -191,7 +198,6 @@ export class Routers extends Component {
                     ? <td>{device.adName}</td>
                     : <td>-</td>
                   }
-                  <td><a class="btn btn-primary b-2" href={Config.pageAddress + "/routers/" + device.identifier + "/users/"}>Wyświetl ({device.usedBy != null ? device.usedBy.length : 0})</a></td>
                   <td><a class="btn btn-info b-2" href={Config.pageAddress + "/routers/" + device.identifier}>Szczegóły</a></td>
                   <td><button class="btn btn-danger b-2" onClick={() => {
                     this.handleDeleteClick(device.identifier);

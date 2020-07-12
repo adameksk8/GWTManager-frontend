@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react';
 import Config from '../Config';
+import validateInput from '../functions/validateInput';
 export class UserAdd extends Component {
 
   constructor(props) {
@@ -9,103 +10,124 @@ export class UserAdd extends Component {
       error: null,
       isLoaded: false,
       computer: null,
-      id:'',
-      firstName:'',
+      id: '',
+      firstName: '',
       lastName: '',
-      email:'',
-      pesel:'',
-      role:'',
-      phone:'',
-      mobilePhone:'',
-      voip:''
+      email: '',
+      pesel: '',
+      role: '',
+      phone: '',
+      mobilePhone: '',
+      voip: '',
     };
-    this.handleChangeFirstName = this.handleChangeFirstName.bind(this);
-    this.handleChangeLastName = this.handleChangeLastName.bind(this);
-    this.handleChangePesel = this.handleChangePesel.bind(this);
-    this.handleChangeRole = this.handleChangeRole.bind(this);
-    this.handleChangeEmail = this.handleChangeEmail.bind(this);
-    this.handleChangePhone = this.handleChangePhone.bind(this);
-    this.handleChangeMobilePhone = this.handleChangeMobilePhone.bind(this);
-    this.handleChangeVoip = this.handleChangeVoip.bind(this);
-    this.handleSubmit=this.handleSubmit.bind(this);
+    this.validateInput = validateInput;
   }
-  handleChangeFirstName(event) {
-    this.setState({ firstName: event.target.value });
-  }
-  handleChangeLastName(event) {
-    this.setState({ lastName: event.target.value });
-  }
-  handleChangePesel(event) {
-    this.setState({ pesel: event.target.value });
-  }
-  handleChangeRole(event) {
-    this.setState({ role: event.target.value });
-  }
-  handleChangeEmail(event) {
-    this.setState({ email: event.target.value });
-  }
-  handleChangePhone(event) {
-    console.log(event.target.value);
-    this.setState({ phone: event.target.value });
-  }
-  handleChangeMobilePhone(event) {
-    this.setState({ mobilePhone: event.target.value });
-  }
-  handleChangeVoip(event) {
-    this.setState({ voip: event.target.value });
-  }
-  async handleSubmit(event) {
+
+  handleSubmit = async event => {
     event.preventDefault();
     const item = {
-      firstName:this.state.firstName,
-      lastName:this.state.lastName,
-      email:this.state.email,
-      pesel:this.state.pesel,
-      role:this.state.role,
-      phone:this.state.phone,
-      mobilePhone:this.state.mobilePhone,
-      voip:this.state.voip
+      firstName: this.state.firstName,
+      lastName: this.state.lastName,
+      email: this.state.email,
+      pesel: this.state.pesel,
+      role: this.state.role,
+      phone: this.state.phone,
+      mobilePhone: this.state.mobilePhone,
+      voip: this.state.voip
     }
-    console.log("Body"+JSON.stringify(item));
+    console.log("Body" + JSON.stringify(item));
 
-    await fetch(Config.serverAddress+'/api/v1/users/', {
-      method:'POST',
+    await fetch(Config.serverAddress + '/api/v1/users/', {
+      method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+        'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
       },
-      body: JSON.stringify(item), 
+      body: JSON.stringify(item),
     }
     );
     alert("Zapisano");
     this.forceUpdate();
   }
+  componentDidMount(){
+    this.forceUpdate();//inaczej przycisk zapisz nie działa poprawnie
+  }
   render() {
     return (
       <div>
         <span class="d-block p-2 bg-primary text-white">Wpisz dane użytkownika</span>
-        <form>
-            <div class="form-group">
-              <label for="imie">Imię</label>
-              <input type="text" class="form-control" id="imie" value={this.state.firstName} onChange={this.handleChangeFirstName} />
-              <label for="nazwisko">Nazwisko</label>
-              <input type="text" class="form-control" id="nazwisko" value={this.state.lastName} onChange={this.handleChangeLastName} /*disabled={this.state.formDisabled}*/></input>
-              <label for="pesel">Pesel</label>
-              <input type="text" class="form-control" id="pesel" value={this.state.pesel} onChange={this.handleChangePesel}></input>
-              <label for="role">Rola</label>
-              <input type="text" class="form-control" id="role" value={this.state.role} onChange={this.handleChangeRole}></input>
-              <label for="mail">Mail</label>
-              <input type="text" class="form-control" id="email" value={this.state.email} onChange={this.handleChangeEmail} /*disabled={this.state.formDisabled}*/></input>
-              <label for="phone">Nr telefonu</label>
-              <input type="telephone" class="form-control" id="phone" value={this.state.phone} onChange={this.handleChangePhone} />
-              <label for="mobilePhone">Nr telefonu (komórkowy)</label>
-              <input type="telephone" class="form-control" id="mobilePhone" value={this.state.mobilePhone} onChange={this.handleChangeMobilePhone} />
-              <label for="voip">Nr telefonu (VoIP)</label>
-              <input type="telephone" class="form-control" id="voip" value={this.state.voip} onChange={this.handleChangeVoip} />
+        <form class={document.getElementsByClassName("is-invalid").length == 0 ? "was-validated" : ""}>
+          <div class="form-group">
+            <label for="imie">Imię</label>
+            <input type="text" class="form-control is-invalid" id="imie" required
+              onChange={(event) => {
+                if (this.validateInput(event.target, new RegExp('^[A-Z]{1}[a-z]{1,16}$'))) this.setState({ firstName: event.target.value });
+              }}>
+            </input>
+            <div class="invalid-feedback">
+              Co najmniej 2 litery, pierwsza wielka
+              </div>
+            <label for="nazwisko">Nazwisko</label>
+            <input type="text" class="form-control is-invalid" id="nazwisko" required
+              onChange={(event) => {
+                if (this.validateInput(event.target, new RegExp('^[A-Z]{1}[a-z]{1,16}$'))) this.setState({ lastName: event.target.value });
+              }}>
+            </input>
+            <div class="invalid-feedback">
+              Co najmniej 2 litery, pierwsza wielka
+              </div>
+            <label for="pesel">Pesel</label>
+            <input type="text" class="form-control is-invalid" id="pesel" required
+              onChange={(event) => {
+                if (this.validateInput(event.target, new RegExp('^[0-9]{11}$'))) this.setState({ pesel: event.target.value });
+              }}>
+            </input>
+            <div class="invalid-feedback">
+              11 cyfr
             </div>
-          </form>
-        <a href={Config.pageAddress+"/users/add"} class="btn btn-success" onClick={this.handleSubmit}>Zapisz</a>
+            <label for="role">Rola</label>
+            <input type="text" class="form-control" id="role" required></input>
+            <label for="mail">Mail</label>
+            <input type="email" class="form-control is-invalid" id="email" required
+              onChange={(event) => {
+                if (this.validateInput(event.target, new RegExp('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,}$'))) this.setState({ email: event.target.value });
+              }}>
+            </input>
+            <div class="invalid-feedback">
+              Niepoprawny email
+              </div>
+            <label for="phone">Nr telefonu</label>
+            <input type="telephone" class="form-control is-valid" id="phone"
+              onChange={(event) => {
+                if (this.validateInput(event.target, new RegExp('^[0-9]{8,11}$'))) this.setState({ phone: event.target.value });
+              }}>
+            </input>
+            <div class="invalid-feedback">
+              Od 8 do 11 cyfr
+              </div>
+            <label for="mobilePhone">Nr telefonu (komórkowy)</label>
+            <input type="telephone" class="form-control is-valid" id="mobilePhone"
+              onChange={(event) => {
+                if (this.validateInput(event.target, new RegExp('^[0-9]{8,11}$'))) this.setState({ mobilePhone: event.target.value });
+              }}>
+            </input>
+            <div class="invalid-feedback">
+              Od 8 do 11 cyfr
+              </div>
+            <label for="voip">Nr telefonu (VoIP)</label>
+            <input type="telephone" class="form-control is-valid" id="voip"
+              onChange={(event) => {
+                if (this.validateInput(event.target, new RegExp('^[0-9]{8,11}$'))) this.setState({ voip: event.target.value });
+              }}>
+            </input>
+            <div class="invalid-feedback">
+              Od 8 do 11 cyfr
+              </div>
+          </div>
+          <button class="btn btn-success" value="Zapisz" disabled={document.getElementsByClassName("is-invalid").length > 0} onClick={this.handleSubmit} >Zapisz</button>
+        </form>
+        
       </div>
     )
   }

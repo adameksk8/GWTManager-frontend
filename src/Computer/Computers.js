@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import Config from '../Config'
 import Loading from '../Loading';
+import ModalConfirmDelete from '../ModalConfirmDelete';
 export class Computers extends Component {
   constructor(props) {
     super(props);
@@ -12,39 +13,34 @@ export class Computers extends Component {
       tempComputers: [], //kopia, na której nie wykonujemy żadnych zmian
       sortedBy: 'IDAsc',
       filterBy: 'ID',
-      filterInputValue: ''
+      filterInputValue: '',
+      itemToDelete:''
     };
-    this.handleSortByID = this.handleSortByID.bind(this);
-    this.handleSortByOwner = this.handleSortByOwner.bind(this);
-    this.handleSortByIP = this.handleSortByIP.bind(this);
-    this.handleSortByAdName = this.handleSortByAdName.bind(this);
-    this.handleFilterData = this.handleFilterData.bind(this);
-    this.handleFilterChange = this.handleFilterChange.bind(this);
   }
-  handleDeleteClick = computerId => {
-    let confirmDelete = window.confirm("Czy na pewno usunąć?");
-    if (confirmDelete) {
-      const requestOptions = {
-        method: 'DELETE',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
-        }
-      };
-      fetch(Config.serverAddress + "/api/v1/computers/" + computerId, requestOptions).then((response) => {
-        return response.json();
-      }).then((result) => {
-        console.log(result);
-        console.log("Usunięto");
-        alert("Usunięto");
-      })
-        .then(() => {
-          window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
-        });
+  handleDeleteClick = () => {
+    const requestOptions = {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
+      }
+    };
+
+if (this.state.itemToDelete){
+  fetch(Config.serverAddress + "/api/v1/computers/" + this.state.itemToDelete.id, requestOptions).then((response) => {
+    if (response.status===200){
+    this.state.computers.splice(this.state.computers.findIndex(a=>a.id===this.state.itemToDelete.id),1);
+    this.forceUpdate();
+    return response.json()
     }
-  }
-  handleSortByID() {
+    else {
+      alert ("Wystąpił błąd!")
+    }
+  })
+}
+}
+  handleSortByID=()=> {
     if (this.state.sortedBy !== 'IDAsc') {
       this.state.computers.sort((a, b) => a.deviceId > b.deviceId ? 1 : -1)
       this.setState({ sortedBy: 'IDAsc' })
@@ -55,7 +51,7 @@ export class Computers extends Component {
     }
     this.forceUpdate();
   }
-  handleSortByOwner() {
+  handleSortByOwner=()=> {
     if (this.state.sortedBy !== 'OwnerAsc') {
       this.state.computers.sort((a, b) => {
         if (a.owner === null || a.owner.lastName === null) return -1;
@@ -74,7 +70,7 @@ export class Computers extends Component {
     }
     this.forceUpdate();
   }
-  handleSortByIP() {
+  handleSortByIP=()=> {
     if (this.state.sortedBy !== 'IPAsc') {
       this.state.computers.sort((a, b) => a.ipAddress > b.ipAddress ? 1 : -1)
       this.setState({ sortedBy: 'IPAsc' })
@@ -85,25 +81,27 @@ export class Computers extends Component {
     }
     this.forceUpdate();
   }
-  handleSortByAdName() {
+  handleSortByAdName=()=> {
     if (this.state.sortedBy !== 'AdNameAsc') {
-      this.state.computers.sort((a, b) => a.adName > b.adName ? 1 : -1)
+      this.state.computers.sort((a, b) => 
+       (a.adName > b.adName )|| b.adName==undefined ? 1 : -1
+      )
       this.setState({ sortedBy: 'AdNameAsc' })
     }
     else {
-      this.state.computers.sort((a, b) => a.adName < b.adName ? 1 : -1)
+      this.state.computers.sort((a, b) => (a.adName < b.adName)|| a.adName==undefined ? 1 : -1)
       this.setState({ sortedBy: 'AdNameDesc' })
     }
     this.forceUpdate();
   }
-  handleFilterChange(Event) {
+  handleFilterChange=(Event)=>{
     this.setState({ filterBy: Event.target.value })
     this.setState({ filterInputValue: "" })
     this.setState({ computers: this.state.tempComputers })
     //this.state.computers = this.state.tempComputers;
     this.forceUpdate();
   }
-  handleFilterData(Event) {
+  handleFilterData=(Event)=> {
     if (Event.target.value === '') {
       this.setState({ computers: this.state.tempComputers })
       this.setState({ filterInputValue: "" })
@@ -118,7 +116,7 @@ export class Computers extends Component {
       if (this.state.filterBy === 'ID') result = this.state.computers.filter((element) => (element.deviceId != null) ? new RegExp(pattern).test(element.deviceId) : false);
       if (this.state.filterBy === 'Owner') result = this.state.computers.filter((element) => (element.owner != null) ? new RegExp(pattern).test(element.owner.lastName) : false);
       if (this.state.filterBy === 'IP') result = this.state.computers.filter((element) => (element.ipAddress != null) ? new RegExp(pattern).test(element.ipAddress) : false);
-      if (this.state.filterBy === 'AdName') result = this.state.adName.filter((element) => (element.adName != null) ? new RegExp(pattern).test(element.adName) : false);
+      if (this.state.filterBy === 'AdName') result = this.state.computers.filter((element) => (element.adName != null) ? new RegExp(pattern).test(element.adName) : false);
       this.setState({ computers: result })
       this.forceUpdate();
     }
@@ -208,8 +206,8 @@ export class Computers extends Component {
                   }
                   <td><a class="btn btn-primary b-2" href={Config.pageAddress + "/computers/" + computer.identifier + "/users/"}>Wyświetl ({computer.usedBy != null ? computer.usedBy.length : 0})</a></td>
                   <td><a class="btn btn-info b-2" href={Config.pageAddress + "/computers/" + computer.identifier}>Szczegóły</a></td>
-                  <td><button class="btn btn-danger b-2" onClick={() => {
-                    this.handleDeleteClick(computer.identifier);
+                  <td><button type="button" class="btn btn-danger b-2" data-toggle="modal" data-target="#staticBackdrop" onClick={() => {
+                    this.setState({ itemToDelete: computer })
                   }}>Usuń</button></td>
                 </tr>
               ))
@@ -217,6 +215,7 @@ export class Computers extends Component {
 
             </tbody>
           </table>
+          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} />
         </div >
       );
     }

@@ -177,10 +177,10 @@ export class Device extends Component {
             <thead class="thead-dark">
               <tr>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByID} >ID</button></th>
+                <th scope="col">Typ</th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByOwner} >Właściciel</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByIP} >IP</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByAdName} >Nazwa AD</button></th>
-                <th scope="col">Użytkownicy</th>
                 <th scope="col" colspan="2">Operacje</th>
               </tr>
             </thead>
@@ -190,6 +190,10 @@ export class Device extends Component {
                 <tr key={device.identifier}>
                   {device.deviceId
                     ? <td>{device.deviceId}</td>
+                    : <td>-</td>
+                  }
+                  {device.deviceType
+                    ? <td>{device.deviceType}</td>
                     : <td>-</td>
                   }
                   {device.owner != null
@@ -204,7 +208,6 @@ export class Device extends Component {
                     ? <td>{device.adName}</td>
                     : <td>-</td>
                   }
-                  <td><a class="btn btn-primary b-2" href={Config.pageAddress + "/devices/" + device.identifier + "/users/"}>Wyświetl ({device.usedBy != null ? device.usedBy.length : 0})</a></td>
                   <td><a class="btn btn-info b-2" href={Config.pageAddress + "/devices/" + device.identifier}>Szczegóły</a></td>
                   <td><button class="btn btn-danger b-2" onClick={() => {
                     this.handleDeleteClick(device.identifier);

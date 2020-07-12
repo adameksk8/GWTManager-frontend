@@ -8,7 +8,15 @@ import UsersOfComputer from './User/UsersOfComputer'
 import UserDetails from './User/UserDetails'
 import UserAdd from './User/UserAdd'
 import Switches from './Switch/Switches'
+import SwitchDetails from './Switch/SwitchDetails'
+import SwitchAdd from './Switch/SwitchAdd'
 import Routers from './Router/Routers'
+import RouterDetails from './Router/RouterDetails'
+import RouterAdd from './Router/RouterAdd'
+import Sites from './Site/Sites'
+import Buildings from './Building/Buildings'
+import Floors from './Floor/Floors'
+import Rooms from './Room/Rooms'
 import Devices from './Device/Devices'
 import Login from './Login/Login'
 import Logout from './Login/Logout'
@@ -65,10 +73,10 @@ export class App extends Component {
                     {this.state.username != null &&
                       <li className="dropdown"><a href="#" className="dropbtn">Lokalizacje</a>
                         <div className="dropdown-content">
-                          <Link to="/site">Kompleks</Link>
-                          <Link to="/building">Budynek</Link>
-                          <Link to="/floor">Piętro</Link>
-                          <Link to="/room">Pomieszczenie</Link>
+                          <Link to="/sites">Kompleks</Link>
+                          <Link to="/buildings">Budynek</Link>
+                          <Link to="/floors">Piętro</Link>
+                          <Link to="/rooms">Pomieszczenie</Link>
                         </div>
                       </li>
                     }
@@ -98,7 +106,15 @@ export class App extends Component {
               <Route path="/users/add"><UserAdd /></Route>
               <Route path="/users/:id" component={UserDetails}></Route>
               <Route exact path="/switches"><Switches /></Route>
+              <Route path="/switches/add"><SwitchAdd /></Route>
+              <Route path="/switches/:id" component={SwitchDetails}></Route>
               <Route exact path="/routers"><Routers /></Route>
+              <Route path="/routers/add"><RouterAdd /></Route>
+              <Route path="/routers/:id" component={RouterDetails}></Route>
+              <Route exact path="/sites"><Sites /></Route>
+              <Route exact path="/buildings"><Buildings /></Route>
+              <Route exact path="/floors"><Floors /></Route>
+              <Route exact path="/rooms"><Rooms /></Route>
               <Route exact path="/devices"><Devices /></Route>
               <Route exact path="/login"><Login /></Route>
               <Route exact path="/logout"><Logout /></Route>

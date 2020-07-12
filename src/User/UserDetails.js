@@ -10,56 +10,59 @@ export class UserDetails extends Component {
       id: '',
       firstName: '',
       lastName: '',
-      pesel:'',
-      role:'',
+      pesel: '',
+      role: '',
       email: '',
       phone: '',
       mobilePhone: '',
       voip: '',
-      formDisabled: 'disabled'
+      formDisabled: true
     };
-    this.handleChangeFirstName = this.handleChangeFirstName.bind(this);
-    this.handleChangeLastName = this.handleChangeLastName.bind(this);
-    this.handleChangePesel = this.handleChangePesel.bind(this);
-    this.handleChangeRole = this.handleChangeRole.bind(this);
-    this.handleChangeEmail = this.handleChangeEmail.bind(this);
-    this.handleChangePhone = this.handleChangePhone.bind(this);
-    this.handleChangeMobilePhone = this.handleChangeMobilePhone.bind(this);
-    this.handleChangeVoip = this.handleChangeVoip.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleClickEdit = this.handleClickEdit.bind(this);
   }
 
-  handleClickEdit(event) {
-    console.log(this.state.formDisabled)
-    this.setState({formDisabled : false})
+  handleClickEdit = (Event) => {
+    Event.preventDefault();
+    if (this.state.formDisabled) {
+      this.setState({ formDisabled: false })
+      Event.target.classList.remove("btn-danger");
+      Event.target.classList.add("btn-primary");
+      Event.target.innerText = "Zablokuj";
+    }
+    else {
+      this.setState({ formDisabled: true })
+      Event.target.classList.remove("btn-primary");
+      Event.target.classList.add("btn-danger");
+      Event.target.innerText = "Odblokuj";
+    }
   }
-  handleChangeFirstName(event) {
+
+
+  handleChangeFirstName = event => {
     this.setState({ firstName: event.target.value });
   }
-  handleChangeLastName(event) {
+  handleChangeLastName = event => {
     this.setState({ lastName: event.target.value });
   }
-  handleChangePesel(event) {
+  handleChangePesel = event => {
     this.setState({ pesel: event.target.value });
   }
-  handleChangeRole(event) {
+  handleChangeRole = event => {
     this.setState({ role: event.target.value });
   }
-  handleChangeEmail(event) {
+  handleChangeEmail = event => {
     this.setState({ email: event.target.value });
   }
-  handleChangePhone(event) {
+  handleChangePhone = event => {
     console.log(event.target.value);
     this.setState({ phone: event.target.value });
   }
-  handleChangeMobilePhone(event) {
+  handleChangeMobilePhone = event => {
     this.setState({ mobilePhone: event.target.value });
   }
-  handleChangeVoip(event) {
+  handleChangeVoip = event => {
     this.setState({ voip: event.target.value });
   }
-  async handleSubmit(event) {
+  handleSubmit = async event => {
     event.preventDefault();
     const item = {
       id: this.state.id,
@@ -74,28 +77,29 @@ export class UserDetails extends Component {
     }
     console.log("Body" + JSON.stringify(item));
 
-    await fetch(Config.serverAddress+'/api/v1/users/' + this.state.id, {
+    await fetch(Config.serverAddress + '/api/v1/users/' + this.state.id, {
       method: 'PUT',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+        'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
       },
       body: JSON.stringify(item),
     }
     );
     alert("Zapisano");
+    window.history.back();
   }
 
   componentDidMount() {
-    const requestOptions={
+    const requestOptions = {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+        'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
       },
     }
-    fetch(Config.serverAddress+"/api/v1/users/" + this.props.match.params.id, requestOptions)
+    fetch(Config.serverAddress + "/api/v1/users/" + this.props.match.params.id, requestOptions)
       .then(res => res.json())
       .then(
         (result) => {
@@ -127,7 +131,7 @@ export class UserDetails extends Component {
   }
 
   render() {
-    let { error, isLoaded} = this.state;
+    let { error, isLoaded } = this.state;
     if (error) {
       return <div>Błąd: {error.message}</div>;
     } else if (!isLoaded) {
@@ -141,22 +145,26 @@ export class UserDetails extends Component {
           <form>
             <div class="form-group">
               <label for="imie">Imię</label>
-              <input type="text" class="form-control" id="imie" value={this.state.firstName} onChange={this.handleChangeFirstName} />
+              <input type="text" class="form-control" id="imie" value={this.state.firstName} disabled={this.state.formDisabled} onChange={this.handleChangeFirstName} />
               <label for="nazwisko">Nazwisko</label>
-              <input type="text" class="form-control" id="nazwisko" value={this.state.lastName} onChange={this.handleChangeLastName} /*disabled={this.state.formDisabled}*/></input>
+              <input type="text" class="form-control" id="nazwisko" value={this.state.lastName} disabled={this.state.formDisabled} onChange={this.handleChangeLastName} /*disabled={this.state.formDisabled}*/></input>
               <label for="pesel">Pesel</label>
-              <input type="text" class="form-control" id="pesel" value={this.state.pesel} onChange={this.handleChangePesel}></input>
+              <input type="text" class="form-control" id="pesel" value={this.state.pesel} disabled={this.state.formDisabled} onChange={this.handleChangePesel}></input>
               <label for="role">Rola</label>
-              <input type="text" class="form-control" id="role" value={this.state.role} onChange={this.handleChangeRole}></input>
+              <input type="text" class="form-control" id="role" value={this.state.role} disabled={this.state.formDisabled} onChange={this.handleChangeRole}></input>
               <label for="mail">Mail</label>
-              <input type="text" class="form-control" id="email" value={this.state.email} onChange={this.handleChangeEmail} /*disabled={this.state.formDisabled}*/></input>
+              <input type="text" class="form-control" id="email" value={this.state.email} disabled={this.state.formDisabled} onChange={this.handleChangeEmail} /*disabled={this.state.formDisabled}*/></input>
               <label for="phone">Nr telefonu</label>
-              <input type="telephone" class="form-control" id="phone" value={this.state.phone} onChange={this.handleChangePhone} />
+              <input type="telephone" class="form-control" id="phone" value={this.state.phone} disabled={this.state.formDisabled} onChange={this.handleChangePhone} />
               <label for="phone">Nr telefonu (komórkowy)</label>
-              <input type="telephone" class="form-control" id="mobilePhone" value={this.state.mobilePhone} onChange={this.handleChangeMobilePhone} />
+              <input type="telephone" class="form-control" id="mobilePhone" value={this.state.mobilePhone} disabled={this.state.formDisabled} onChange={this.handleChangeMobilePhone} />
               <label for="phone">Nr telefonu (VoIP)</label>
-              <input type="telephone" class="form-control" id="voip" value={this.state.voip} onChange={this.handleChangeVoip} />
-              <input type="submit" class="btn btn-success m-2" value="Zapisz" onClick={this.handleSubmit} />
+              <input type="telephone" class="form-control" id="voip" value={this.state.voip} disabled={this.state.formDisabled} onChange={this.handleChangeVoip} />
+
+              <button class="btn btn-danger" onClick={this.handleClickEdit}>Odblokuj</button>
+              <input type="submit" class="btn btn-success" value="Zapisz" hidden={this.state.formDisabled} onClick={this.handleSubmit}/>
+              
+              
             </div>
           </form>
         </div>

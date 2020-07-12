@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Config from '../Config';
 import validateInput from '../functions/validateInput';
 import validateID from '../functions/validateID';
-export class ComputerAdd extends Component {
+export class SwitchAdd extends Component {
 
   constructor(props) {
     super(props);
@@ -11,15 +11,12 @@ export class ComputerAdd extends Component {
       isLoaded: false,
       computer: null,
       users: [],
-      computers: [],
+      switches: [],
       id: '',
       deviceId: '',
       adName:'',
       producer: '',
       model: '',
-      cpu: '',
-      ram: '',
-      hdd: '',
       ipAddress: '',
       macAddress: '',
       owner: '',
@@ -59,13 +56,13 @@ export class ComputerAdd extends Component {
           });
         }
       ).then(
-        fetch(Config.serverAddress + "/api/v1/computers", requestOptions)
+        fetch(Config.serverAddress + "/api/v1/switches", requestOptions)
           .then(res => res.json())
           .then(
             (result) => {
               this.setState({
                 isLoaded: true,
-                computers: result,
+                switches: result,
               });
             },
             // Uwaga: to ważne, żeby obsłużyć błędy tutaj, a
@@ -87,16 +84,13 @@ export class ComputerAdd extends Component {
       deviceId: this.state.deviceId,
       producer: this.state.producer,
       model: this.state.model,
-      cpu: this.state.cpu,
-      ram: this.state.ram,
-      hdd: this.state.hdd,
       ipAddress: this.state.ipAddress,
       macAddress: this.state.macAddress,
       owner: this.state.owner
     }
     console.log("Body" + JSON.stringify(item));
 
-    await fetch(Config.serverAddress + '/api/v1/computers/', {
+    await fetch(Config.serverAddress + '/api/v1/switches/', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -119,11 +113,11 @@ export class ComputerAdd extends Component {
     let { error, isLoaded, users } = this.state;
     return (
       <div>
-        <span class="d-block p-2 bg-primary text-white">Szczegółowe dane komputera</span>
+        <span class="d-block p-2 bg-primary text-white">Szczegółowe dane switcha</span>
         <form class={document.getElementsByClassName("is-invalid").length == 0 ? "was-validated" : ""}>
           <div class="form-group">
             <label for="deviceID" >ID urządzenia</label>
-            <input type="number" placeholder="Wpisz ID komputera" class="form-control is-invalid " id="deviceID" required onChange={(event) => {
+            <input type="number" placeholder="Wpisz ID switcha" class="form-control is-invalid " id="deviceID" required onChange={(event) => {
 
               if (this.validateInput(event.target, new RegExp('^[0-9]{4,6}$')) && this.validateID(event.target)) this.setState({ deviceId: event.target.value })
             }
@@ -151,7 +145,7 @@ export class ComputerAdd extends Component {
               if (this.validateInput(event.target, new RegExp('[a-zA-Z0-9]{2,16}$'))) this.setState({ adName: event.target.value.toLocaleUpperCase() });
             }}></input>
             <label for="producer">Producent</label>
-            <input type="text" placeholder="Wpisz producenta komputera" class="form-control is-invalid" id="producer" required onChange={(event) => {
+            <input type="text" placeholder="Wpisz producenta switcha" class="form-control is-invalid" id="producer" required onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('[a-zA-Z0-9]{2,16}$'))) this.setState({ producer: event.target.value });
             }}></input>
 
@@ -159,29 +153,13 @@ export class ComputerAdd extends Component {
               Od 2 do 16 znaków alfanumerycznych
             </div>
             <label for="model">Model</label>
-            <input type="text" placeholder="Wpisz model komputera" class="form-control is-invalid" id="model"  required onChange={(event) => {
+            <input type="text" placeholder="Wpisz model switcha" class="form-control is-invalid" id="model"  required onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ model: event.target.value });
             }}></input>
 
             <div class="invalid-feedback">
               Od 2 do 16 znaków alfanumerycznych
             </div>
-            <label for="cpu">Procesor</label>
-            <input type="text" placeholder="Wpisz model komputera" class="form-control is-valid" id="cpu"  required onChange={(event) => {
-            if (this.validateInput(event.target, new RegExp('^($|([a-zA-Z0-9]{2,16})$)'))) this.setState({ cpu: event.target.value });
-            }}></input>
-            <div class="invalid-feedback">
-              Od 2 do 16 znaków alfanumerycznych
-            </div>
-            <label for="ram">RAM</label>
-            <input type="number" placeholder="Wpisz ilość ramu (GB)" class="form-control is-valid" id="ram" onChange={(event) => {
-              console.log(event.target.value);
-              if (this.validateInput(event.target, new RegExp('^($|[1-9]{1}[0-9]{0,3}$)'))) this.setState({ ipAddress: event.target.value });
-            }}></input>
-            <label for="model">Dysk twardy</label>
-            <input type="text" placeholder="Wpisz dane dysku twardego" class="form-control is-valid" id="hdd" onChange={(event) => {
-              if (this.validateInput(event.target, new RegExp('^($|[0-9a-zA-Z]{5,50}$)'))) this.setState({ hdd: event.target.value });
-            }}></input>
             <label for="ip">IP</label>
             <input type="text" placeholder="Wpisz adres IP" class="form-control is-valid" id="ip" onChange={(event) => {
               if (this.validateInput(event.target, new RegExp("^($|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$"))) this.setState({ ipAddress: event.target.value });
@@ -200,9 +178,9 @@ export class ComputerAdd extends Component {
             </div>
           </div>
         </form>
-        <button href={Config.pageAddress + "/computers/add"} class="btn btn-success" disabled={document.getElementsByClassName("is-invalid").length > 0} onClick={this.handleSubmit}>Zapisz</button>
+        <button href={Config.pageAddress + "/switches/add"} class="btn btn-success" disabled={document.getElementsByClassName("is-invalid").length > 0} onClick={this.handleSubmit}>Zapisz</button>
       </div>
     )
   }
 }
-export default ComputerAdd
+export default SwitchAdd
