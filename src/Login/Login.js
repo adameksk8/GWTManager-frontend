@@ -2,11 +2,12 @@
 import React, { Component } from 'react';
 import {authenticationService} from '../Services/authenticationService'
 import { Redirect, useHistory } from 'react-router-dom';
+import { Modal } from '../Modal';
+import $ from 'jquery';
 
 export class Login extends Component {
     constructor(props) {
         super(props);
-        //this.props.username
         this.state = {
             username: "",
             password: "",
@@ -45,8 +46,11 @@ export class Login extends Component {
                         </div>
                         {authenticationService.currentUserValue!=null &&
                         <Redirect to="/home"/>}
+                         
                     </form>
                 </div >
+                <Modal header="Sukces!" body={"Zalogowano: "+this.state.username} id="modalSuccess" onCloseClicked={()=>window.location.reload()} />
+                <Modal header="Błąd!" body={"Nie zalogowano. Niepoprawny login lub hasło."} id="modalError" />
             </div>
         );
     }

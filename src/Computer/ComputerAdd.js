@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Config from '../Config';
 import validateInput from '../functions/validateInput';
 import validateID from '../functions/validateID';
+import Modal from '../Modal';
+import $ from 'jquery';
 export class ComputerAdd extends Component {
 
   constructor(props) {
@@ -85,6 +87,7 @@ export class ComputerAdd extends Component {
     event.preventDefault();
     const item = {
       deviceId: this.state.deviceId,
+      adName: this.state.adName,
       producer: this.state.producer,
       model: this.state.model,
       cpu: this.state.cpu,
@@ -107,10 +110,10 @@ export class ComputerAdd extends Component {
     }
     ).then(res => {
       if (res.status == 200) {
-        alert("Zapisano");
+        $('#modalSuccess').modal('show');
       }
       else {
-        alert("Błąd: " + res.status + " " + res.statusText + " Nie zapisano.");
+        $('#modalError').modal('show');
       }
     });
 
@@ -174,16 +177,16 @@ export class ComputerAdd extends Component {
               Od 2 do 16 znaków alfanumerycznych
             </div>
             <label for="ram">RAM</label>
-            <input type="number" placeholder="Wpisz ilość ramu (GB)" class="form-control is-valid" id="ram" onChange={(event) => {
+            <input type="number" placeholder="Wpisz ilość ramu (GB)" class="form-control is-invalid" id="ram" onChange={(event) => {
               console.log(event.target.value);
-              if (this.validateInput(event.target, new RegExp('^($|[1-9]{1}[0-9]{0,3}$)'))) this.setState({ ipAddress: event.target.value });
+              if (this.validateInput(event.target, new RegExp('^($|[1-9]{1}[0-9]{0,3}$)'))) this.setState({ ram: event.target.value });
             }}></input>
             <label for="model">Dysk twardy</label>
             <input type="text" placeholder="Wpisz dane dysku twardego" class="form-control is-valid" id="hdd" onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^($|[0-9a-zA-Z]{5,50}$)'))) this.setState({ hdd: event.target.value });
             }}></input>
             <label for="ip">IP</label>
-            <input type="text" placeholder="Wpisz adres IP" class="form-control is-valid" id="ip" onChange={(event) => {
+            <input type="text" placeholder="Wpisz adres IP" class="form-control is-invalid" id="ip" onChange={(event) => {
               if (this.validateInput(event.target, new RegExp("^($|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$"))) this.setState({ ipAddress: event.target.value });
             }}></input>
             
@@ -191,16 +194,18 @@ export class ComputerAdd extends Component {
               Adres IP w formacie x.x.x.x gdzie x jest liczbą 0-255
             </div>
             <label for="mac">MAC</label>
-            <input type="text" placeholder="Wpisz adres MAC" class="form-control is-valid" id="mac" onChange={(event) => {
-              if (this.validateInput(event.target, new RegExp('^($|(([0-9a-fA-F]){2})(\:([0-9a-fA-F]){2}){7}$)'))) this.setState({ macAddress: event.target.value.toUpperCase });
+            <input type="text" placeholder="Wpisz adres MAC" class="form-control is-invalid" id="mac" onChange={(event) => {
+              console.log(event.target.value);
+              if (this.validateInput(event.target, new RegExp('^($|(([0-9a-fA-F]){2})(\:([0-9a-fA-F]){2}){7}$)'))) this.setState({ macAddress: event.target.value.toUpperCase() });
             }}></input>
-                        
             <div class="invalid-feedback">
               Adres MAC w formacie XX:XX:XX:XX:XX:XX:XX:XX gdzie X- wartość zapisana szesnastkowo (0-F)
             </div>
           </div>
         </form>
-        <button href={Config.pageAddress + "/computers/add"} class="btn btn-success" disabled={document.getElementsByClassName("is-invalid").length > 0} onClick={this.handleSubmit}>Zapisz</button>
+        <button href={Config.pageAddress + "/computers/add"} class="btn btn-success m-2" disabled={document.getElementsByClassName("is-invalid").length > 0} onClick={this.handleSubmit}>Zapisz</button>
+        <Modal header="Sukces" body={"Dodano komputer ID: "+ this.state.deviceId} id="modalSuccess" onCloseClicked={()=>window.location.href='/computers'} />
+        <Modal header="Błąd" body={"Dodawanie nie powiodło się."} id="modalError" />
       </div>
     )
   }

@@ -160,7 +160,6 @@ export class Device extends Component {
       return (
         <div>
           <h1>Lista urządzeń</h1>
-          <a href={Config.pageAddress + "/devices/add"} class="btn btn-success m-2">Dodaj nowy</a>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
               <label class="input-group-text" for="inputGroupSelect01">Filtruj</label>
@@ -169,7 +168,6 @@ export class Device extends Component {
               <option selected value="ID">ID</option>
               <option value="Owner">Właściciel (nazwisko)</option>
               <option value="IP">IP</option>
-              <option value="AdName">Nazwa AD</option>
             </select>
             <input type="text" class="form-control" aria-label="Tu wpisz tekst wg którego chcesz filtrować dane" placeholder="Wpisz tekst wg którego chcesz filtrować dane" value={this.state.filterInputValue} onChange={this.handleFilterData}></input>
           </div>
@@ -180,13 +178,11 @@ export class Device extends Component {
                 <th scope="col">Typ</th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByOwner} >Właściciel</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByIP} >IP</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByAdName} >Nazwa AD</button></th>
                 <th scope="col" colspan="2">Operacje</th>
               </tr>
             </thead>
             <tbody>
               {Array.isArray(this.state.devices) && devices.map(device => (
-
                 <tr key={device.identifier}>
                   {device.deviceId
                     ? <td>{device.deviceId}</td>
@@ -204,11 +200,7 @@ export class Device extends Component {
                     ? <td>{device.ipAddress}</td>
                     : <td>-</td>
                   }
-                  {device.adName
-                    ? <td>{device.adName}</td>
-                    : <td>-</td>
-                  }
-                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/devices/" + device.identifier}>Szczegóły</a></td>
+                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/"+device.deviceType.toLowerCase()+"s/" + device.identifier}>Szczegóły</a></td>
                   <td><button class="btn btn-danger b-2" onClick={() => {
                     this.handleDeleteClick(device.identifier);
                   }}>Usuń</button></td>

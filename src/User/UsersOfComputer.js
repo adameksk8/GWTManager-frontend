@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import Config from '../Config';
+import Modal from '../Modal';
+import ModalConfirmDelete from '../ModalConfirmDelete'
+import $ from 'jquery';
 export class UsersOfComputer extends Component {
 
   constructor(props) {
@@ -10,19 +13,18 @@ export class UsersOfComputer extends Component {
       computer: null,
       users: [],
       userSelected: null,
-      submitButton: 'disabled'
+      submitButton: 'disabled',
+      userToDelete:''
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
   }
 
-  async handleDeleteClick(id) {
-    let confirmDelete = window.confirm("Czy na pewno usunąć?");
-    if (confirmDelete) {
+  async handleDeleteClick() {
       const requestOptions={
         method: 'DELETE',
         params: {
-          'userId': id
+          'userId': this.state.userToDelete.id
         },
         headers: {
           'Accept': 'application/json',
@@ -30,14 +32,13 @@ export class UsersOfComputer extends Component {
           'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
         }
       }
-      await fetch(Config.serverAddress + '/api/v1/computers/' + this.state.computer.id + '/removeUser/?userId=' + id, requestOptions);
-      let userToRemove = this.state.computer.usedBy.find((a) => a.id === id);
+      await fetch(Config.serverAddress + '/api/v1/computers/' + this.state.computer.id + '/removeUser/?userId=' + this.state.userToDelete.id, requestOptions);
+      let userToRemove = this.state.computer.usedBy.find((a) => a.id === this.state.userToDelete.id);
       let usersOfComputer = this.state.computer.usedBy;
       let computerCopy = this.state.computer;
       usersOfComputer.splice(usersOfComputer.indexOf(userToRemove), 1);
       computerCopy.usedBy = usersOfComputer;
       this.setState({ computer: computerCopy });
-    }
   }
   async handleSubmit(event) {
     event.preventDefault();
@@ -51,17 +52,32 @@ export class UsersOfComputer extends Component {
         }
       };
       await fetch(Config.serverAddress + '/api/v1/computers/' + this.state.computer.id + '/addUser/?userId=' + this.state.userSelected, requestOptions);
-      console.log(requestOptions);
-      console.log(this.state.userSelected);
       let userToAdd = this.state.users.find((a) => a.id == this.state.userSelected);//celowo ==, nie zmieniać na ===
       let usersOfComputer = this.state.computer.usedBy;
       let computerCopy = this.state.computer;
-      usersOfComputer.push(userToAdd);
-      computerCopy.usedBy = usersOfComputer;
-      this.setState({ computer: computerCopy });
+      let contains=false;
+
+       for (let user of usersOfComputer){
+        if (user.id==userToAdd.id)
+        contains=true;
+      }
+      if (!contains){
+        usersOfComputer.push(userToAdd);
+        computerCopy.usedBy = usersOfComputer;
+        this.setState({ computer: computerCopy });
+      }
+      else $("#modalErrorUserAlreadyAssigned").modal('show');
+
+      
     }
-    else alert("Wybierz użytkownika z listy");
   }
+
+
+      
+
+    
+
+  
 
   componentDidMount() {
     const requestOptions = {
@@ -140,7 +156,7 @@ export class UsersOfComputer extends Component {
             ))}
 
           </select>
-          <a href={window.location.href} class="btn btn-success" onClick={this.handleSubmit}>Przypisz do komputera</a>
+          <a href={window.location.href} class="btn btn-success m-2" onClick={this.handleSubmit}>Przypisz do komputera</a>
         </div>
         <table class="table table-light table-hover">
           <thead class="thead-dark">
@@ -158,15 +174,20 @@ export class UsersOfComputer extends Component {
                   <td>{user.lastName}</td>
                   <td>{user.email}</td>
                   <td><a class="btn btn-info b-2" href={Config.pageAddress + "/users/" + user.id}>Szczegóły</a></td>
-                  <td><button class="btn btn-danger b-2" onClick={(event) => {
-                    this.handleDeleteClick(user.id);
+                  <td><button class="btn btn-danger b-2" data-toggle="modal" data-target="#modalConfirmDelete" onClick={(event) => {
+                    this.setState({userToDelete:user});
                   }
+
+                  
                   }>Usuń przypisanie</button></td>
                 </tr>;
               })
             }
           </tbody>
         </table>
+        <ModalConfirmDelete  id="modalConfirmDelete" handleConfirmClick={this.handleDeleteClick}/>
+        <Modal header="Błąd!" body={"Nie wybrano użytkownika z listy!"} id="modalErrorNoUserSelected" />
+        <Modal header="Błąd!" body={"Użytkownik jest już przypisany do komputera"} id="modalErrorUserAlreadyAssigned" />
       </div>
       )
     }

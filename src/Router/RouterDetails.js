@@ -158,11 +158,9 @@ export class RouterDetails extends Component {
                 if (this.validateInput(event.target, new RegExp('^[0-9]{4,6}$')) && this.validateID(event.target)) this.setState({ deviceId: event.target.value })
               }
               } />
-              <div class="invalid-feedback">
-                Od 4 do 6 cyfr, unikalna wartość
-            </div>
+              <div class="invalid-feedback">Od 4 do 6 cyfr, unikalna wartość</div>
               <label for="exampleFormControlSelect1">Wybierz właściciela</label>
-              <select class="form-control is-valid" id="exampleFormControlSelect1" required onChange={(event) => {
+              <select class="form-control is-valid" id="exampleFormControlSelect1" required defaultValue={this.state.owner} onChange={(event) => {
                 if (this.validateInput(event.target, new RegExp('^[0-9]*$'))) this.setState({ 'owner': this.state.users.find(user => user.id == event.target.value) });
               }}>
                 {this.state.users.order}
@@ -171,33 +169,27 @@ export class RouterDetails extends Component {
                     <option selected={this.state.owner.id == user.id} value={user.id}>{user.firstName + " " + user.lastName + " Pesel: " + user.pesel}</option>
                   ))}
               </select>
-              <label for="adName">Nazwa AD</label>
-            <input type="text" placeholder="Wpisz nazwę w Active Directory" class="form-control is-valid" id="adName" defaultValue={this.state.adName} onChange={(event) => {
-              if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ adName: event.target.value.toLocaleUpperCase() });
-            }}></input>
+              <div class="invalid-feedback">Należy wybrać osobę z listy</div>
             <label for="producer">Producent</label>
             <input type="text" placeholder="Wpisz producenta routera" class="form-control is-valid" id="producer" defaultValue={this.state.producer} required onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ producer: event.target.value });
             }}></input>
+            <div class="invalid-feedback">Od 2 do 16 znaków alfanumerycznych</div>
             <label for="model">Model</label>
             <input type="text" placeholder="Wpisz model routera" class="form-control is-valid" id="model" defaultValue={this.state.model} required onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ model: event.target.value });
             }}></input>
+            <div class="invalid-feedback">Od 2 do 16 znaków alfanumerycznych</div>
             <label for="ip">IP</label>
             <input type="text" placeholder="Wpisz adres IP" class="form-control is-valid" id="ip" defaultValue={this.state.ipAddress} onChange={(event) => {
               if (this.validateInput(event.target, new RegExp("^($|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$"))) this.setState({ ipAddress: event.target.value });
-              
             }}></input>
-            <div class="invalid-feedback">
-              Adres IP w formacie x.x.x.x gdzie x jest liczbą 0-255
-            </div>
+            <div class="invalid-feedback">Adres IP w formacie x.x.x.x gdzie x jest liczbą 0-255</div>
             <label for="mac">MAC</label>
             <input type="text" placeholder="Wpisz adres MAC" class="form-control is-valid" id="mac" defaultValue={this.state.macAddress} onChange={(event) => {
-              if (this.validateInput(event.target, new RegExp('^($|(([0-9a-fA-F]){2})(:([0-9a-fA-F]){2}){7}$)'))) this.setState({ macAddress: event.target.value.toUpperCase });
+              if (this.validateInput(event.target, new RegExp('^($|(([0-9a-fA-F]){2})(:([0-9a-fA-F]){2}){7}$)'))) this.setState({ macAddress: event.target.value.toUpperCase() });
             }}></input>
-            <div class="invalid-feedback">
-              Adres MAC w formacie XX:XX:XX:XX:XX:XX:XX:XX gdzie X- wartość zapisana szesnastkowo (0-F)
-            </div>
+            <div class="invalid-feedback">Adres MAC w formacie XX:XX:XX:XX:XX:XX:XX:XX gdzie X- wartość zapisana szesnastkowo (0-F)</div>
             </div>
           </form>
           <button type="submit" class="btn btn-success m-2" disabled={document.getElementsByClassName("is-invalid").length > 0} onClick={this.handleSubmit}>Zapisz</button>

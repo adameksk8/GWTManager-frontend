@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import Config from '../Config'
 import validateInput from '../functions/validateInput';
 import validateID from '../functions/validateID';
+import Modal from '../Modal';
+import $ from 'jquery';
 export class SwitchDetails extends Component {
 
   constructor(props) {
@@ -19,19 +21,34 @@ export class SwitchDetails extends Component {
       ipAddress: '',
       macAddress: '',
       owner: '',
+      formDisabled: true
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.validateInput = validateInput;
     this.validateID = validateID;
   }
 
+  handleClickEdit = (Event) => {
+    Event.preventDefault();
+    if (this.state.formDisabled) {
+      this.setState({ formDisabled: false })
+      Event.target.classList.remove("btn-danger");
+      Event.target.classList.add("btn-primary");
+      Event.target.innerText = "Zablokuj edycję";
+    }
+    else {
+      this.setState({ formDisabled: true })
+      Event.target.classList.remove("btn-primary");
+      Event.target.classList.add("btn-danger");
+      Event.target.innerText = "Odblokuj edycję";
+    }
+  }
 
   handleSubmit = async event => {
     event.preventDefault();
     const item = {
       id: this.state.id,
       deviceId: this.state.deviceId,
-      adName: this.state.adName,
       producer: this.state.producer,
       model: this.state.model,
       cpu: this.state.cpu,
@@ -53,7 +70,7 @@ export class SwitchDetails extends Component {
       body: JSON.stringify(item),
     }
     );
-    alert("Zapisano");
+    $('#modalSuccess').modal('show');
   }
 
   componentDidMount() {
@@ -157,7 +174,7 @@ export class SwitchDetails extends Component {
           <form class={document.getElementsByClassName("is-invalid").length == 0 ? "was-validated" : ""}>
             <div class="form-group">
               <label for="deviceID" >ID urządzenia</label>
-              <input type="number" placeholder="Wpisz ID switcha" class="form-control is-valid " id="deviceID" defaultValue={this.state.deviceId} onChange={(event) => {
+              <input type="number" placeholder="Wpisz ID switcha" class="form-control is-valid " id="deviceID" defaultValue={this.state.deviceId} disabled={this.state.formDisabled} onChange={(event) => {
                 if (this.validateInput(event.target, new RegExp('^[0-9]{4,6}$')) && this.validateID(event.target)) this.setState({ deviceId: event.target.value })
               }
               } />
@@ -165,7 +182,7 @@ export class SwitchDetails extends Component {
                 Od 4 do 6 cyfr, unikalna wartość
             </div>
               <label for="exampleFormControlSelect1">Wybierz właściciela</label>
-              <select class="form-control is-valid" id="exampleFormControlSelect1" required onChange={(event) => {
+              <select class="form-control is-valid" id="exampleFormControlSelect1" disabled={this.state.formDisabled} onChange={(event) => {
                 if (this.validateInput(event.target, new RegExp('^[0-9]*$'))) this.setState({ 'owner': this.state.users.find(user => user.id == event.target.value) });
               }}>
                 {this.state.users.order}
@@ -174,20 +191,16 @@ export class SwitchDetails extends Component {
                     <option selected={this.state.owner.id == user.id} value={user.id}>{user.firstName + " " + user.lastName + " Pesel: " + user.pesel}</option>
                   ))}
               </select>
-              <label for="adName">Nazwa AD</label>
-            <input type="text" placeholder="Wpisz nazwę w Active Directory" class="form-control is-valid" id="adName" defaultValue={this.state.adName} onChange={(event) => {
-              if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ adName: event.target.value.toLocaleUpperCase() });
-            }}></input>
             <label for="producer">Producent</label>
-            <input type="text" placeholder="Wpisz producenta switcha" class="form-control is-valid" id="producer" defaultValue={this.state.producer} required onChange={(event) => {
+            <input type="text" placeholder="Wpisz producenta switcha" class="form-control is-valid" id="producer"  defaultValue={this.state.producer} disabled={this.state.formDisabled} required onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ producer: event.target.value });
             }}></input>
             <label for="model">Model</label>
-            <input type="text" placeholder="Wpisz model switcha" class="form-control is-valid" id="model" defaultValue={this.state.model} required onChange={(event) => {
+            <input type="text" placeholder="Wpisz model switcha" class="form-control is-valid" id="model" defaultValue={this.state.model} required disabled={this.state.formDisabled} onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ model: event.target.value });
             }}></input>
             <label for="ip">IP</label>
-            <input type="text" placeholder="Wpisz adres IP" class="form-control is-valid" id="ip" defaultValue={this.state.ipAddress} onChange={(event) => {
+            <input type="text" placeholder="Wpisz adres IP" class="form-control is-valid" id="ip" defaultValue={this.state.ipAddress} disabled={this.state.formDisabled} onChange={(event) => {
               if (this.validateInput(event.target, new RegExp("^($|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$"))) this.setState({ ipAddress: event.target.value });
               
             }}></input>
@@ -195,15 +208,18 @@ export class SwitchDetails extends Component {
               Adres IP w formacie x.x.x.x gdzie x jest liczbą 0-255
             </div>
             <label for="mac">MAC</label>
-            <input type="text" placeholder="Wpisz adres MAC" class="form-control is-valid" id="mac" defaultValue={this.state.macAddress} onChange={(event) => {
-              if (this.validateInput(event.target, new RegExp('^($|(([0-9a-fA-F]){2})(:([0-9a-fA-F]){2}){7}$)'))) this.setState({ macAddress: event.target.value.toUpperCase });
+            <input type="text" placeholder="Wpisz adres MAC" class="form-control is-valid" id="mac" defaultValue={this.state.macAddress} disabled={this.state.formDisabled} onChange={(event) => {
+              if (this.validateInput(event.target, new RegExp('^($|(([0-9a-fA-F]){2})(:([0-9a-fA-F]){2}){7}$)'))) this.setState({ macAddress: event.target.value });
             }}></input>
             <div class="invalid-feedback">
               Adres MAC w formacie XX:XX:XX:XX:XX:XX:XX:XX gdzie X- wartość zapisana szesnastkowo (0-F)
             </div>
             </div>
           </form>
-          <button type="submit" class="btn btn-success m-2" disabled={document.getElementsByClassName("is-invalid").length > 0} onClick={this.handleSubmit}>Zapisz</button>
+          <button class="btn btn-danger m-2" onClick={this.handleClickEdit}>Odblokuj edycję</button>
+          <button type="submit" class="btn btn-success m-2" hidden={this.state.formDisabled} disabled={document.getElementsByClassName("is-invalid").length > 0} onClick={this.handleSubmit}>Zapisz</button>
+          <Modal header="Sukces" body={"Zaktualizowano switch ID: "+ this.state.deviceId} id="modalSuccess" onCloseClicked={()=>window.location.href='/switches'} />
+          <Modal header="Błąd" body={"Aktualizowanie nie powiodło się."} id="modalError" />
         </div>
       )
     }

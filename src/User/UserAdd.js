@@ -62,7 +62,7 @@ export class UserAdd extends Component {
             <label for="imie">Imię</label>
             <input type="text" class="form-control is-invalid" id="imie" required
               onChange={(event) => {
-                if (this.validateInput(event.target, new RegExp('^[A-Z]{1}[a-z]{1,16}$'))) this.setState({ firstName: event.target.value });
+                if (this.validateInput(event.target, new RegExp('^[A-Z]{1}[a-ząćężźłóń]{1,16}$'))) this.setState({ firstName: event.target.value });
               }}>
             </input>
             <div class="invalid-feedback">
@@ -71,7 +71,7 @@ export class UserAdd extends Component {
             <label for="nazwisko">Nazwisko</label>
             <input type="text" class="form-control is-invalid" id="nazwisko" required
               onChange={(event) => {
-                if (this.validateInput(event.target, new RegExp('^[A-Z]{1}[a-z]{1,16}$'))) this.setState({ lastName: event.target.value });
+                if (this.validateInput(event.target, new RegExp('^[A-Z]{1}[a-ząćężźłóń]{1,16}$'))) this.setState({ lastName: event.target.value });
               }}>
             </input>
             <div class="invalid-feedback">

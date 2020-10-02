@@ -140,10 +140,6 @@ export class RouterAdd extends Component {
             <div class="invalid-feedback">
               Wybierz użytkownika z listy
             </div>
-            <label for="adName">Nazwa AD</label>
-            <input type="text" placeholder="Wpisz nazwę w Active Directory" class="form-control is-invalid" id="adName" onChange={(event) => {
-              if (this.validateInput(event.target, new RegExp('[a-zA-Z0-9]{2,16}$'))) this.setState({ adName: event.target.value.toLocaleUpperCase() });
-            }}></input>
             <label for="producer">Producent</label>
             <input type="text" placeholder="Wpisz producenta routera" class="form-control is-invalid" id="producer" required onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('[a-zA-Z0-9]{2,16}$'))) this.setState({ producer: event.target.value });
@@ -170,7 +166,7 @@ export class RouterAdd extends Component {
             </div>
             <label for="mac">MAC</label>
             <input type="text" placeholder="Wpisz adres MAC" class="form-control is-valid" id="mac" onChange={(event) => {
-              if (this.validateInput(event.target, new RegExp('^($|(([0-9a-fA-F]){2})(\:([0-9a-fA-F]){2}){7}$)'))) this.setState({ macAddress: event.target.value.toUpperCase });
+              if (this.validateInput(event.target, new RegExp('^($|(([0-9a-fA-F]){2})(\:([0-9a-fA-F]){2}){7}$)'))) this.setState({ macAddress: event.target.value.toUpperCase() });
             }}></input>
                         
             <div class="invalid-feedback">

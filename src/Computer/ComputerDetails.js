@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import Config from '../Config'
 import validateInput from '../functions/validateInput';
 import validateID from '../functions/validateID';
+import Modal from '../Modal';
+import $ from 'jquery';
 export class ComputerDetails extends Component {
 
   constructor(props) {
@@ -25,12 +27,28 @@ export class ComputerDetails extends Component {
       ipAddress: '',
       macAddress: '',
       owner: '',
+      formDisabled: true
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.validateInput = validateInput;
     this.validateID = validateID;
   }
 
+  handleClickEdit = (Event) => {
+    Event.preventDefault();
+    if (this.state.formDisabled) {
+      this.setState({ formDisabled: false })
+      Event.target.classList.remove("btn-danger");
+      Event.target.classList.add("btn-primary");
+      Event.target.innerText = "Zablokuj edycję";
+    }
+    else {
+      this.setState({ formDisabled: true })
+      Event.target.classList.remove("btn-primary");
+      Event.target.classList.add("btn-danger");
+      Event.target.innerText = "Odblokuj edycję";
+    }
+  }
 
   handleSubmit = async event => {
     event.preventDefault();
@@ -59,7 +77,7 @@ export class ComputerDetails extends Component {
       body: JSON.stringify(item),
     }
     );
-    alert("Zapisano");
+    $('#modalSuccess').modal('show');
   }
 
   componentDidMount() {
@@ -167,7 +185,7 @@ export class ComputerDetails extends Component {
           <form class={document.getElementsByClassName("is-invalid").length == 0 ? "was-validated" : ""}>
             <div class="form-group">
               <label for="deviceID" >ID urządzenia</label>
-              <input type="number" placeholder="Wpisz ID komputera" class="form-control is-valid " id="deviceID" defaultValue={this.state.deviceId} onChange={(event) => {
+              <input type="number" placeholder="Wpisz ID komputera" class="form-control is-valid " id="deviceID" defaultValue={this.state.deviceId} disabled={this.state.formDisabled} onChange={(event) => {
                 if (this.validateInput(event.target, new RegExp('^[0-9]{4,6}$')) && this.validateID(event.target)) this.setState({ deviceId: event.target.value })
               }
               } />
@@ -175,7 +193,7 @@ export class ComputerDetails extends Component {
                 Od 4 do 6 cyfr, unikalna wartość
             </div>
               <label for="exampleFormControlSelect1">Wybierz właściciela</label>
-              <select class="form-control is-valid" id="exampleFormControlSelect1" required onChange={(event) => {
+              <select class="form-control is-valid" id="exampleFormControlSelect1" disabled={this.state.formDisabled} disabled={this.state.formDisabled} onChange={(event) => {
                 if (this.validateInput(event.target, new RegExp('^[0-9]*$'))) this.setState({ 'owner': this.state.users.find(user => user.id == event.target.value) });
               }}>
                 {this.state.users.order}
@@ -185,27 +203,30 @@ export class ComputerDetails extends Component {
                   ))}
               </select>
               <label for="adName">Nazwa AD</label>
-            <input type="text" placeholder="Wpisz nazwę w Active Directory" class="form-control is-valid" id="adName" defaultValue={this.state.adName} onChange={(event) => {
+            <input type="text" placeholder="Wpisz nazwę w Active Directory" class="form-control is-valid" id="adName" defaultValue={this.state.adName} disabled={this.state.formDisabled} onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ adName: event.target.value.toLocaleUpperCase() });
             }}></input>
             <label for="producer">Producent</label>
-            <input type="text" placeholder="Wpisz producenta komputera" class="form-control is-valid" id="producer" defaultValue={this.state.producer} required onChange={(event) => {
+            <input type="text" placeholder="Wpisz producenta komputera" class="form-control is-valid" id="producer" defaultValue={this.state.producer} required disabled={this.state.formDisabled} onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ producer: event.target.value });
             }}></input>
             <label for="model">Model</label>
-            <input type="text" placeholder="Wpisz model komputera" class="form-control is-valid" id="model" defaultValue={this.state.model} required onChange={(event) => {
+            <input type="text" placeholder="Wpisz model komputera" class="form-control is-valid" id="model" defaultValue={this.state.model} required disabled={this.state.formDisabled} onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ model: event.target.value });
             }}></input>
               <label for="cpu">Procesor</label>
-              <input type="text" class="form-control" id="cpu" defaultValue={this.state.cpu} onChange={this.handleChangeCpu}></input>
+              <input type="text" class="form-control" id="cpu" defaultValue={this.state.cpu} disabled={this.state.formDisabled} onChange={this.handleChangeCpu}></input>
               <label for="ram">RAM</label>
-              <input type="text" class="form-control" id="ram" defaultValue={this.state.ram} onChange={this.handleChangeRam}></input>
+              <input type="text" class="form-control is-valid" id="ram" defaultValue={this.state.ram} disabled={this.state.formDisabled} onChange={(event) => {
+                            if (this.validateInput(event.target, new RegExp('^($|[1-9]{1}[0-9]{0,3}$)'))) this.setState({ ram: event.target.value });
+                          }}
+              />
               <label for="model">Dysk twardy</label>
-              <input type="text" placeholder="Wpisz dane dysku twardego" class="form-control is-valid" id="hdd" value={this.state.hdd} onChange={(event) => {
+              <input type="text" placeholder="Wpisz dane dysku twardego" class="form-control is-valid" id="hdd" value={this.state.hdd} disabled={this.state.formDisabled} onChange={(event) => {
               if (this.validateInput(event.target, new RegExp('^($|[0-9a-zA-Z]{5,50}$)'))) this.setState({ hdd: event.target.value });
             }}></input>
             <label for="ip">IP</label>
-            <input type="text" placeholder="Wpisz adres IP" class="form-control is-valid" id="ip" defaultValue={this.state.ipAddress} onChange={(event) => {
+            <input type="text" placeholder="Wpisz adres IP" class="form-control is-valid" id="ip" defaultValue={this.state.ipAddress} disabled={this.state.formDisabled} onChange={(event) => {
               if (this.validateInput(event.target, new RegExp("^($|(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$"))) this.setState({ ipAddress: event.target.value });
               
             }}></input>
@@ -213,15 +234,18 @@ export class ComputerDetails extends Component {
               Adres IP w formacie x.x.x.x gdzie x jest liczbą 0-255
             </div>
             <label for="mac">MAC</label>
-            <input type="text" placeholder="Wpisz adres MAC" class="form-control is-valid" id="mac" defaultValue={this.state.macAddress} onChange={(event) => {
-              if (this.validateInput(event.target, new RegExp('^($|(([0-9a-fA-F]){2})(:([0-9a-fA-F]){2}){7}$)'))) this.setState({ macAddress: event.target.value.toUpperCase });
+            <input type="text" placeholder="Wpisz adres MAC" class="form-control is-valid" id="mac" defaultValue={this.state.macAddress} disabled={this.state.formDisabled} onChange={(event) => {
+              if (this.validateInput(event.target, new RegExp('^($|(([0-9a-fA-F]){2})(:([0-9a-fA-F]){2}){7}$)'))) this.setState({ macAddress: event.target.value.toUpperCase() });
             }}></input>
             <div class="invalid-feedback">
               Adres MAC w formacie XX:XX:XX:XX:XX:XX:XX:XX gdzie X- wartość zapisana szesnastkowo (0-F)
             </div>
             </div>
           </form>
-          <button type="submit" class="btn btn-success m-2" disabled={document.getElementsByClassName("is-invalid").length > 0} onClick={this.handleSubmit}>Zapisz</button>
+          <button class="btn btn-danger m-2" onClick={this.handleClickEdit}>Odblokuj edycję</button>
+          <button type="submit" class="btn btn-success m-2" disabled={document.getElementsByClassName("is-invalid").length > 0} hidden={this.state.formDisabled} onClick={this.handleSubmit}>Zapisz</button>
+          <Modal header="Sukces" body={"Zaktualizowano komputer ID: "+ this.state.deviceId} id="modalSuccess" onCloseClicked={()=>window.location.href='/computers'} />
+          <Modal header="Błąd" body={"Aktualizowanie nie powiodło się."} id="modalError" />
         </div>
       )
     }

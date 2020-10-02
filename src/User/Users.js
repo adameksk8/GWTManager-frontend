@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Config from '../Config';
 import Loading from '../Loading';
 import ModalConfirmDelete from '../ModalConfirmDelete';
-import { ModalError } from '../ModalError';
+import { Modal } from '../Modal';
 import $ from 'jquery';
 export class Users extends Component {
 
@@ -25,30 +25,6 @@ export class Users extends Component {
     this.handleSortByEMail = this.handleSortByEMail.bind(this);
     this.handleFilterData = this.handleFilterData.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
-    this.handlePaginationClick = this.handlePaginationClick.bind(this);
-  }
-  test(param) {
-    console.log("test" + param);
-  }
-
-  handlePaginationClick(Event) {
-    if (Event.target.innerText == 'Poprzednia') {
-      if (this.state.paginationSelected > 1) {
-        let ps = this.state.paginationSelected;
-        --ps;
-        this.setState({ paginationSelected: ps });
-      }
-    }
-    else if (Event.target.innerText == 'Następna') {
-      let ps = this.state.paginationSelected;
-      ++ps;
-      this.setState({ paginationSelected: ps });//zrobić zabezpieczenie żeby nie wykraczać poza zakres
-    }
-    else {
-      this.setState({ paginationSelected: Event.target.innerText });
-    }
-    console.log(this.state.paginationSelected);
-    console.log(this.state.users.length);
   }
 
   handleDeleteClick = () => {
@@ -69,12 +45,11 @@ if (this.state.itemToDelete){
     if (response.status===200){
     this.state.users.splice(this.state.users.findIndex(a=>a.id===this.state.itemToDelete.id),1);
     this.forceUpdate();
+    $('#modalSuccess').modal('show');
     return response.json()
     }
     else {
       $('#modalError').modal('show');
- 
-
     }
   })
 }
@@ -184,17 +159,7 @@ if (this.state.itemToDelete){
             </select>
             <input type="text" class="form-control" aria-label="Tu wpisz tekst wg którego chcesz filtrować dane" placeholder="Wpisz tekst wg którego chcesz filtrować dane" value={this.state.filterInputValue} onChange={this.handleFilterData}></input>
           </div>
-          <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-              <li class="page-item">
-                <a class="page-link" onClick={this.handlePaginationClick} href="#" tabindex="-1">Poprzednia</a>
-              </li>
-              <li class="page-item"><a class="page-link" onClick={this.handlePaginationClick} href="#">1</a></li>
-              <li class="page-item">
-                <a class="page-link" onClick={this.handlePaginationClick} href="#">Następna</a>
-              </li>
-            </ul>
-          </nav>
+
           <table class="table table-light table-hover">
             <thead class="thead-dark">
               <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByFirstName} >Imię</button></th>
@@ -218,8 +183,10 @@ if (this.state.itemToDelete){
               ))}
             </tbody>
           </table>
-          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} />
-          <ModalError />
+          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} toDelete={this.state.itemToDelete.firstName+" "+this.state.itemToDelete.lastName} />
+          <Modal header="Sukces" body={"Usunięto użytkownika: "+this.state.itemToDelete.firstName +" "+this.state.itemToDelete.lastName} id="modalSuccess" />
+          <Modal header="Błąd" body={"Usuwanie "+this.state.itemToDelete.firstName +" "+this.state.itemToDelete.lastName+ " nie powiodło się. Sprawdź czy użytkownik nie jest właścicielem lub nie jest przypisany do żadnego urządzenia."} 
+          id="modalError" />
         </div>
       );
     }

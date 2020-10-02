@@ -108,6 +108,7 @@ export class App extends Component {
               <Route exact path="/switches"><Switches /></Route>
               <Route path="/switches/add"><SwitchAdd /></Route>
               <Route path="/switches/:id" component={SwitchDetails}></Route>
+              <Route path="/switchs/:id" component={SwitchDetails}></Route>
               <Route exact path="/routers"><Routers /></Route>
               <Route path="/routers/add"><RouterAdd /></Route>
               <Route path="/routers/:id" component={RouterDetails}></Route>
@@ -121,7 +122,7 @@ export class App extends Component {
             </Switch>
           </main>
           <footer>
-            GWTManager! v1.0 &copy;Adam Nowak
+            <a href="mailto:adam.nowak.it@gmail.com" class="text-white">GWTManager! v1.0 &copy;Adam Nowak</a>
           </footer>
         </div>
       </Router>

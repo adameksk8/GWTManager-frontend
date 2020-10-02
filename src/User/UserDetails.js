@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import Config from '../Config';
+import validateInput from '../functions/validateInput';
+import Modal from '../Modal';
+import $ from 'jquery';
 export class UserDetails extends Component {
   //na pozniej zrobic tak aby przycisk edytuj odblokowywał formularze
   constructor(props) {
@@ -18,6 +21,7 @@ export class UserDetails extends Component {
       voip: '',
       formDisabled: true
     };
+    this.validateInput = validateInput;
   }
 
   handleClickEdit = (Event) => {
@@ -26,13 +30,13 @@ export class UserDetails extends Component {
       this.setState({ formDisabled: false })
       Event.target.classList.remove("btn-danger");
       Event.target.classList.add("btn-primary");
-      Event.target.innerText = "Zablokuj";
+      Event.target.innerText = "Zablokuj edycję";
     }
     else {
       this.setState({ formDisabled: true })
       Event.target.classList.remove("btn-primary");
       Event.target.classList.add("btn-danger");
-      Event.target.innerText = "Odblokuj";
+      Event.target.innerText = "Odblokuj edycję";
     }
   }
 
@@ -87,10 +91,8 @@ export class UserDetails extends Component {
       body: JSON.stringify(item),
     }
     );
-    alert("Zapisano");
-    window.history.back();
+    $('#modalSuccess').modal('show');
   }
-
   componentDidMount() {
     const requestOptions = {
       headers: {
@@ -142,31 +144,65 @@ export class UserDetails extends Component {
       return (
         <div>
           <span class="d-block p-2 bg-primary text-white">Szczegółowe dane użytkownika</span>
-          <form>
+          <form class={document.getElementsByClassName("is-invalid").length == 0 ? "was-validated" : ""}>
             <div class="form-group">
               <label for="imie">Imię</label>
-              <input type="text" class="form-control" id="imie" value={this.state.firstName} disabled={this.state.formDisabled} onChange={this.handleChangeFirstName} />
+              <input type="text" class="form-control is-valid" id="imie" required defaultValue={this.state.firstName} disabled={this.state.formDisabled} 
+                            onChange={(event) => {
+                              if (this.validateInput(event.target, new RegExp('^[A-Z]{1}[a-ząćężźłóń]{1,16}$'))) this.setState({ firstName: event.target.value });
+                            }}
+               />
+              <div class="invalid-feedback">Co najmniej 2 litery, pierwsza wielka</div>
               <label for="nazwisko">Nazwisko</label>
-              <input type="text" class="form-control" id="nazwisko" value={this.state.lastName} disabled={this.state.formDisabled} onChange={this.handleChangeLastName} /*disabled={this.state.formDisabled}*/></input>
+              <input type="text" class="form-control is-valid" id="nazwisko" required defaultValue={this.state.lastName} disabled={this.state.formDisabled} 
+                onChange={(event) => {
+                  if (this.validateInput(event.target, new RegExp('^[A-Z]{1}[a-ząćężźłóń]{1,16}$'))) this.setState({ lastName: event.target.value });
+                }}/>
+              <div class="invalid-feedback">Co najmniej 2 litery, pierwsza wielka</div>
               <label for="pesel">Pesel</label>
-              <input type="text" class="form-control" id="pesel" value={this.state.pesel} disabled={this.state.formDisabled} onChange={this.handleChangePesel}></input>
+              <input type="text" class="form-control is-valid" id="pesel" required defaultValue={this.state.pesel} disabled={this.state.formDisabled} 
+                            onChange={(event) => {
+                              if (this.validateInput(event.target, new RegExp('^[0-9]{11}$'))) this.setState({ pesel: event.target.value });
+                            }}
+              />
+              <div class="invalid-feedback">11 cyfr</div>
               <label for="role">Rola</label>
-              <input type="text" class="form-control" id="role" value={this.state.role} disabled={this.state.formDisabled} onChange={this.handleChangeRole}></input>
+              <input type="text" class="form-control is-valid" id="role" value={this.state.role} disabled={this.state.formDisabled} onChange={this.handleChangeRole}></input>
               <label for="mail">Mail</label>
-              <input type="text" class="form-control" id="email" value={this.state.email} disabled={this.state.formDisabled} onChange={this.handleChangeEmail} /*disabled={this.state.formDisabled}*/></input>
+              <input type="text" class="form-control is-valid" id="email" defaultValue={this.state.email} disabled={this.state.formDisabled} onChange={this.handleChangeEmail} 
+                            onChange={(event) => {
+                              if (this.validateInput(event.target, new RegExp('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,}$'))) this.setState({ email: event.target.value });
+                            }}
+              />
+              <div class="invalid-feedback">Niepoprawny email</div>
               <label for="phone">Nr telefonu</label>
-              <input type="telephone" class="form-control" id="phone" value={this.state.phone} disabled={this.state.formDisabled} onChange={this.handleChangePhone} />
-              <label for="phone">Nr telefonu (komórkowy)</label>
-              <input type="telephone" class="form-control" id="mobilePhone" value={this.state.mobilePhone} disabled={this.state.formDisabled} onChange={this.handleChangeMobilePhone} />
-              <label for="phone">Nr telefonu (VoIP)</label>
-              <input type="telephone" class="form-control" id="voip" value={this.state.voip} disabled={this.state.formDisabled} onChange={this.handleChangeVoip} />
+              <input type="telephone" class="form-control is-valid" id="phone" value={this.state.phone} disabled={this.state.formDisabled} 
+                            onChange={(event) => {
+                              if (this.validateInput(event.target, new RegExp('^[0-9]{8,11}$'))) this.setState({ phone: event.target.value });
+                            }}
+              />
+              <div class="invalid-feedback">Od 8 do 11 cyfr</div>
+              <label for="mobile">Nr telefonu (komórkowy)</label>
+              <input type="telephone" class="form-control is-valid" id="mobilePhone" value={this.state.mobilePhone} disabled={this.state.formDisabled} 
+                            onChange={(event) => {
+                              if (this.validateInput(event.target, new RegExp('^[0-9]{8,11}$'))) this.setState({ mobilePhone: event.target.value });
+                            }}
+              />
+              <div class="invalid-feedback">Od 8 do 11 cyfr</div>
+              <label for="voip">Nr telefonu (VoIP)</label>
+              <input type="telephone" class="form-control is-valid" id="voip" value={this.state.voip} disabled={this.state.formDisabled}
+                            onChange={(event) => {
+                              if (this.validateInput(event.target, new RegExp('^[0-9]{8,11}$'))) this.setState({ voip: event.target.value });
+                            }}
+              />
+              <div class="invalid-feedback">Od 8 do 11 cyfr</div>
 
-              <button class="btn btn-danger" onClick={this.handleClickEdit}>Odblokuj</button>
-              <input type="submit" class="btn btn-success" value="Zapisz" hidden={this.state.formDisabled} onClick={this.handleSubmit}/>
-              
-              
+              <button class="btn btn-danger m-2" onClick={this.handleClickEdit}>Odblokuj edycję</button>
+              <input type="submit" class="btn btn-success m-2" disabled={document.getElementsByClassName("is-invalid").length > 0} value="Zapisz" hidden={this.state.formDisabled} onClick={this.handleSubmit}/>
             </div>
           </form>
+          <Modal header="Sukces" body={"Zaktualizowano użytkownika: "+ this.state.firstName + " "+this.state.lastName} id="modalSuccess" onCloseClicked={()=>window.location.href='/users'} />
+          <Modal header="Błąd" body={"Aktualizowanie nie powiodło się."} id="modalError" />
         </div>
       )
     }

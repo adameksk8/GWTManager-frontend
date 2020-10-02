@@ -12,7 +12,7 @@ export class ModalConfirmDelete extends Component {
                             </button>
                         </div>
                         <div class="modal-body">
-                            Czy na pewno chcesz usunąć element?
+                            Czy na pewno chcesz usunąć {this.props.toDelete}?
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-danger" data-dismiss="modal" onClick={this.props.handleConfirmClick}>Potwierdzam</button>

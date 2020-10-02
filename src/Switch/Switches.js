@@ -16,7 +16,7 @@ export class Switches extends Component {
     this.handleSortByID = this.handleSortByID.bind(this);
     this.handleSortByOwner = this.handleSortByOwner.bind(this);
     this.handleSortByIP = this.handleSortByIP.bind(this);
-    this.handleSortByAdName = this.handleSortByAdName.bind(this);
+    this.handleSortByMAC = this.handleSortByMAC.bind(this);
     this.handleFilterData = this.handleFilterData.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
   }
@@ -82,14 +82,14 @@ export class Switches extends Component {
     }
     this.forceUpdate();
   }
-  handleSortByAdName() {
-    if (this.state.sortedBy !== 'AdNameAsc') {
-      this.state.switches.sort((a, b) => a.adName > b.adName ? 1 : -1)
-      this.setState({ sortedBy: 'AdNameAsc' })
+  handleSortByMAC() {
+    if (this.state.sortedBy !== 'MACAsc') {
+      this.state.switches.sort((a, b) => a.macAddress > b.macAddress ? 1 : -1)
+      this.setState({ sortedBy: 'MACAsc' })
     }
     else {
-      this.state.switches.sort((a, b) => a.adName < b.adName ? 1 : -1)
-      this.setState({ sortedBy: 'AdNameDesc' })
+      this.state.switches.sort((a, b) => a.macAddress < b.macAddress ? 1 : -1)
+      this.setState({ sortedBy: 'MACDesc' })
     }
     this.forceUpdate();
   }
@@ -113,7 +113,7 @@ export class Switches extends Component {
       if (this.state.filterBy === 'ID') result = this.state.switches.filter((element) => (element.deviceId != null) ? new RegExp(pattern).test(element.deviceId) : false);
       if (this.state.filterBy === 'Owner') result = this.state.switches.filter((element) => (element.owner != null) ? new RegExp(pattern).test(element.owner.lastName) : false);
       if (this.state.filterBy === 'IP') result = this.state.switches.filter((element) => (element.ipAddress != null) ? new RegExp(pattern).test(element.ipAddress) : false);
-      if (this.state.filterBy === 'AdName') result = this.state.switches.filter((element) => (element.adName != null) ? new RegExp(pattern).test(element.adName) : false);
+      if (this.state.filterBy === 'MAC') result = this.state.switches.filter((element) => (element.macAddress != null) ? new RegExp(pattern).test(element.macAddress) : false);
       this.setState({ switches: result })
       this.forceUpdate();
     }
@@ -165,7 +165,7 @@ export class Switches extends Component {
               <option selected value="ID">ID</option>
               <option value="Owner">Właściciel (nazwisko)</option>
               <option value="IP">IP</option>
-              <option value="AdName">Nazwa AD</option>
+              <option value="MAC">MAC</option>
             </select>
             <input type="text" class="form-control" aria-label="Tu wpisz tekst wg którego chcesz filtrować dane" placeholder="Wpisz tekst wg którego chcesz filtrować dane" value={this.state.filterInputValue} onChange={this.handleFilterData}></input>
           </div>
@@ -174,8 +174,8 @@ export class Switches extends Component {
               <tr>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByID} >ID</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByOwner} >Właściciel</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByIP} >IP</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByAdName} >Nazwa AD</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByIP}>IP</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByMAC}>MAC</button></th>
                 <th scope="col" colspan="2">Operacje</th>
               </tr>
             </thead>
@@ -196,8 +196,8 @@ export class Switches extends Component {
                     ? <td>{device.ipAddress}</td>
                     : <td>-</td>
                   }
-                  {device.adName
-                    ? <td>{device.adName}</td>
+                  {device.macAddress
+                    ? <td>{device.macAddress}</td>
                     : <td>-</td>
                   }
                   <td><a class="btn btn-info b-2" href={Config.pageAddress + "/switches/" + device.identifier}>Szczegóły</a></td>

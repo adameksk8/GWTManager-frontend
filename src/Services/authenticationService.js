@@ -22,11 +22,13 @@ function login(username, password) {
     return fetch(`${Config.serverAddress}/login`, requestOptions)
         .then(handleResponse)
         .then(user => {
+            if (user)
+            {
             // store user details and jwt token in local storage to keep user logged in between page refreshes
             localStorage.setItem("Authorization",user["Authorization"]);
             localStorage.setItem("username",user["username"]);
             currentUserSubject.next(user);
-            window.location.reload();
+            }
         });
         
 }

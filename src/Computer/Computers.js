@@ -39,6 +39,7 @@ if (this.state.itemToDelete){
     }
   })
 }
+console.log(this.state.itemToDelete);
 }
   handleSortByID=()=> {
     if (this.state.sortedBy !== 'IDAsc') {
@@ -206,7 +207,7 @@ if (this.state.itemToDelete){
                   }
                   <td><a class="btn btn-primary b-2" href={Config.pageAddress + "/computers/" + computer.identifier + "/users/"}>Wyświetl ({computer.usedBy != null ? computer.usedBy.length : 0})</a></td>
                   <td><a class="btn btn-info b-2" href={Config.pageAddress + "/computers/" + computer.identifier}>Szczegóły</a></td>
-                  <td><button type="button" class="btn btn-danger b-2" data-toggle="modal" data-target="#staticBackdrop" onClick={() => {
+                  <td><button type="button" class="btn btn-danger b-2" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
                     this.setState({ itemToDelete: computer })
                   }}>Usuń</button></td>
                 </tr>
@@ -215,7 +216,7 @@ if (this.state.itemToDelete){
 
             </tbody>
           </table>
-          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} />
+          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} toDelete={"komputer o ID: "+this.state.itemToDelete.deviceId} />
         </div >
       );
     }
