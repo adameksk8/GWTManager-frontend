@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Config from '../Config'
 import Loading from '../Loading';
+import ModalConfirmDelete from '../ModalConfirmDelete';
 export class Rooms extends Component {
     constructor(props) {
         super(props);
@@ -11,30 +12,25 @@ export class Rooms extends Component {
             tempRooms: [], //kopia, na której nie wykonujemy żadnych zmian
             sortedBy: 'IDAsc',
             filterBy: 'ID',
-            filterInputValue: ''
+            filterInputValue: '',
+            roomToDelete:''
         };
 
     }
-    handleDeleteClick = siteId => {
-        let confirmDelete = window.confirm("Czy na pewno usunąć?");
-        if (confirmDelete) {
-            const requestOptions = {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
-                }
-            };
-
-            fetch(Config.serverAddress + "/api/v1/rooms/" + siteId, requestOptions).then((response) => {
-                return response.json();
-            }).then((result) => {
-                console.log("Usunięto");
-                alert("Usunięto");
-            })
-                .then(() => {
-                    window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
-                });
-        }
+    handleDeleteClick = ()=> {
+        const requestOptions = {
+          method: 'DELETE',
+          headers: { 
+            'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+          }
+        };
+        fetch(Config.serverAddress + "/api/v1/rooms/" + this.state.roomToDelete.id, requestOptions).then((response) => {
+          return response.json();
+        }).then((result) => {
+        })
+          .then(() => {
+            window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
+          });
     }
     handleSortByID = () => {
         if (this.state.sortedBy !== 'IDAsc') {
@@ -124,7 +120,7 @@ export class Rooms extends Component {
             return (
                 <div>
                     <h1>Lista pomieszczeń</h1>
-                    <a href={Config.pageAddress + "/rooms/add"} class="btn btn-success m-2">Dodaj nową</a>
+                    <a href={Config.pageAddress + "/rooms/add"} class="btn btn-success m-2">Dodaj nowe</a>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                             <label class="input-group-text" for="inputGroupSelect01">Filtruj</label>
@@ -150,30 +146,31 @@ export class Rooms extends Component {
                             {Array.isArray(this.state.rooms) &&
                                 rooms.map(room => (
                                     <tr key={room.identifier}>
-                                        {room.number
+                                        {room.number 
                                             ? <td>{room.number}</td>
+                                            
                                             : <td>-</td>
                                         }
                                         {room.floor.level
-                                            ? <td>{room.floor.level}</td>
+                                            ?<td><a href={Config.pageAddress + "/floors/" + room.floor.id} class="btn btn-light">{room.floor.level}</a></td>
                                             : <td>-</td>
                                         }
                                         {room.floor.building.number
-                                            ? <td>{room.floor.building.number}</td>
+                                            ?<td><a href={Config.pageAddress + "/buildings/" + room.floor.building.id} class="btn btn-light">{room.floor.building.number}</a></td>
                                             : <td>-</td>
                                         }
                                         {room.floor.building.site.siteId
-                                            ? <td>{room.floor.building.site.siteId}</td>
+                                            ?<td><a href={Config.pageAddress + "/sites/" + room.floor.building.site.id} class="btn btn-light">{room.floor.building.site.siteId}</a></td>
                                             : <td>-</td>
                                         }
                                         <td><a class="btn btn-info b-2" href={Config.pageAddress + "/rooms/" + room.identifier}>Szczegóły</a></td>
-                                        <td><button class="btn btn-danger b-2" onClick={() => {
-                                            this.handleDeleteClick(room.identifier);
-                                        }}>Usuń</button></td>
+                                        <td><button class="btn btn-danger b-2" data-toggle="modal" data-target="#modalConfirmDelete" 
+                                        onClick={() => {this.setState({ roomToDelete: room})}}>Usuń</button></td>
                                     </tr>
                                 ))}
                         </tbody>
                     </table>
+                    <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} toDelete={"pomieszczenie: "+this.state.roomToDelete.number} />
                 </div >
             );
         }

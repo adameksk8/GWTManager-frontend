@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import Config from '../Config'
+import Config from '../Config';
 import Loading from '../Loading';
+import ModalConfirmDelete from '../ModalConfirmDelete';
 export class Floors extends Component {
   constructor(props) {
     super(props);
@@ -11,31 +12,27 @@ export class Floors extends Component {
       tempFloors: [], //kopia, na której nie wykonujemy żadnych zmian
       sortedBy: 'IDAsc',
       filterBy: 'ID',
-      filterInputValue: ''
+      filterInputValue: '',
+      floorToDelete:''
     };
 
   }
-  handleDeleteClick = siteId => {
-    let confirmDelete = window.confirm("Czy na pewno usunąć?");
-    if (confirmDelete) {
-      const requestOptions = {
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
-        }
-      };
+  handleDeleteClick = ()=> {
+    const requestOptions = {
+      method: 'DELETE',
+      headers: { 
+        'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+      }
+    };
+    fetch(Config.serverAddress + "/api/v1/floors/" + this.state.floorToDelete.id, requestOptions).then((response) => {
+      return response.json();
+    }).then((result) => {
+    })
+      .then(() => {
+        window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
+      });
+}
 
-      fetch(Config.serverAddress + "/api/v1/floors/" + siteId, requestOptions).then((response) => {
-        return response.json();
-      }).then((result) => {
-        console.log("Usunięto");
-        alert("Usunięto");
-      })
-        .then(() => {
-          window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
-        });
-    }
-  }
   handleSortBySite = () => {
     if (this.state.sortedBy !== 'SiteAsc') {
       this.state.floors.sort((a, b) => a.building.site.siteId > b.building.site.siteId ? 1 : -1)
@@ -146,21 +143,21 @@ export class Floors extends Component {
                       : <td>-</td>
                     }
                     {floor.building.number
-                      ? <td>{floor.building.number}</td>
+                      ?<td><a href={Config.pageAddress + "/buildings/" + floor.building.id} class="btn btn-light">{floor.building.number}</a></td>
                       : <td>-</td>
                     }
                     {floor.building.site.siteId
-                      ? <td>{floor.building.site.siteId}</td>
+                    ?<td><a href={Config.pageAddress + "/sites/" + floor.building.site.id} class="btn btn-light">{floor.building.site.siteId+" "+floor.building.site.name}</a></td>
                       : <td>-</td>
                     }
-                    <td><a class="btn btn-info b-2" href={Config.pageAddress + "/floors/" + floor.identifier}>Szczegóły</a></td>
-                    <td><button class="btn btn-danger b-2" onClick={() => {
-                      this.handleDeleteClick(floor.identifier);
+                    <td><a class="btn btn-info b-2" href={Config.pageAddress + "/floors/" + floor.id}>Szczegóły</a></td>
+                    <td><button class="btn btn-danger b-2" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {this.setState({ floorToDelete: floor})
                     }}>Usuń</button></td>
                   </tr>
                 ))}
             </tbody>
           </table>
+          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} toDelete={"piętro: "+this.state.floorToDelete.level} />
         </div >
       );
     }

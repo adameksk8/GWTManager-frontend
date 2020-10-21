@@ -1,6 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
-import Config from '../Config'
+import Config from '../Config';
 import { handleResponse } from '../helpers/handleResponse';
+import $ from 'jquery';
 
 
 const currentUserSubject = new BehaviorSubject((localStorage.getItem('username')));
@@ -27,9 +28,18 @@ function login(username, password) {
             // store user details and jwt token in local storage to keep user logged in between page refreshes
             localStorage.setItem("Authorization",user["Authorization"]);
             localStorage.setItem("username",user["username"]);
+            var now = new Date();
+            var time= now.getTime();
+            var expireTime=time+10*36000;
+            now.setTime(expireTime);
+            document.cookie="Authorization="+user["Authorization"]+";expires="+now.toGMTString();
+            document.cookie="username="+user["username"]+";expires="+now.toGMTString();
             currentUserSubject.next(user);
             }
-        });
+        },
+        (error) => {
+            $('#modalError').modal('show');
+          });
         
 }
 

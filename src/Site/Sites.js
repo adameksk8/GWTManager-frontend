@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Config from '../Config'
 import Loading from '../Loading';
+import ModalConfirmDelete from'../ModalConfirmDelete';
 export class Sites extends Component {
   constructor(props) {
     super(props);
@@ -11,31 +12,30 @@ export class Sites extends Component {
       tempSites: [], //kopia, na której nie wykonujemy żadnych zmian
       sortedBy: 'IDAsc',
       filterBy: 'ID',
-      filterInputValue: ''
+      filterInputValue: '',
+      siteToDelete:''
     };
 
   }
-  handleDeleteClick = siteId => {
-    let confirmDelete = window.confirm("Czy na pewno usunąć?");
-    if (confirmDelete) {
-      const requestOptions = {
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
-        }
-      };
 
-      fetch(Config.serverAddress + "/api/v1/sites/" + siteId, requestOptions).then((response) => {
-        return response.json();
-      }).then((result) => {
-        console.log("Usunięto");
-        alert("Usunięto");
-      })
-        .then(() => {
-          window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
-        });
-    }
-  }
+  handleDeleteClick = ()=> {
+    const requestOptions = {
+      method: 'DELETE',
+      headers: { 
+        'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+      }
+    };
+    fetch(Config.serverAddress + "/api/v1/sites/" + this.state.siteToDelete.id, requestOptions).then((response) => {
+      return response.json();
+    }).then((result) => {
+    })
+      .then(() => {
+        window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
+      });
+}
+
+
+
   handleSortByID= ()=>{
     if (this.state.sortedBy !== 'IDAsc') {
       this.state.sites.sort((a, b) => a.deviceId > b.deviceId ? 1 : -1)
@@ -138,7 +138,7 @@ export class Sites extends Component {
           <table class="table table-light table-hover">
             <thead class="thead-dark">
               <tr>
-                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByID} >ID</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByID} >Numer</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByName} >Nazwa</button></th>
                 <th scope="col" colspan="2">Operacje</th>
               </tr>
@@ -147,7 +147,7 @@ export class Sites extends Component {
               {console.log(this.state.sites)}
               {Array.isArray(this.state.sites) &&
                 sites.map(site => (
-                  <tr key={site.identifier}>
+                  <tr key={site.id}>
                     {site.siteId
                       ? <td>{site.siteId}</td>
                       : <td>-</td>
@@ -156,14 +156,15 @@ export class Sites extends Component {
                       ? <td>{site.name}</td>
                       : <td>-</td>
                     }
-                    <td><a class="btn btn-info b-2" href={Config.pageAddress + "/sites/" + site.identifier}>Szczegóły</a></td>
-                    <td><button class="btn btn-danger b-2" onClick={() => {
-                      this.handleDeleteClick(site.identifier);
-                    }}>Usuń</button></td>
+                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/sites/" + site.id}>Szczegóły</a></td>
+                  <td><button class="btn btn-danger b-2 " data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
+                    this.setState({ siteToDelete: site })
+                  }}>Usuń</button></td>
                   </tr>
                 ))}
             </tbody>
           </table>
+          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} toDelete={"kompleks o ID: "+this.state.siteToDelete.siteId} />
         </div >
       );
     }

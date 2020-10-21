@@ -61,7 +61,7 @@ footer {
   visibility: visible;
 }
 
-.dropdown-content {
+/*.dropdown-content {
   animation: 0.2s ease-out 0s 1 slideInFromUp;
   display: none;
   position: absolute;
@@ -76,7 +76,7 @@ footer {
 
 .dropdown:hover .dropdown-content {
   display: block;
-}
+}*/
 
 #content {
   display: flex;
@@ -105,14 +105,7 @@ footer {
 #menu-bar {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
 }
-
-#menu-bar>div {
-  padding: 20px;
-}
-
-
 
 @keyframes slideInFromLeft {
   0% {

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Config from '../Config'
 import Loading from '../Loading';
 import ModalConfirmDelete from '../ModalConfirmDelete';
-export class Computers extends Component {
+export class ComputersByOwner extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -130,7 +130,7 @@ console.log(this.state.itemToDelete);
       }
     };
     console.log(requestOptions);
-    fetch(Config.serverAddress + "/api/v1/computers", requestOptions)
+    fetch(Config.serverAddress + "/api/v1/users/"+this.props.match.params.id+"/computers", requestOptions)
       .then(res => res.json())
       .then(
         (result) => {
@@ -161,7 +161,7 @@ console.log(this.state.itemToDelete);
       return (
         <div>
           {console.log(computers)}
-          <h1>Lista komputerów</h1>
+          <h1>Komputery użytkownika</h1>
           <a href={Config.pageAddress + "/computers/add"} class="btn btn-success m-2">Dodaj nowy</a>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
@@ -175,15 +175,15 @@ console.log(this.state.itemToDelete);
             </select>
             <input type="text" class="form-control" aria-label="Tu wpisz tekst wg którego chcesz filtrować dane" placeholder="Wpisz tekst wg którego chcesz filtrować dane" value={this.state.filterInputValue} onChange={this.handleFilterData}></input>
           </div>
-          <table class="table table-light table-hover text-center">
+          <table class="table table-light table-hover">
             <thead class="thead-dark">
               <tr>
-                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByID} >ID</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByOwner} >Właściciel</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByIP} >IP</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark btn block" onClick={this.handleSortByAdName} >Nazwa AD</button></th>
-                <th scope="col" ><button type="button" class="btn btn-dark btn block">Użytkownicy</button></th>
-                <th scope="col" colspan="2"><button type="button" class="btn btn-dark btn-block"disabled>Operacje</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByID} >ID</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByOwner} >Właściciel</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByIP} >IP</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByAdName} >Nazwa AD</button></th>
+                <th scope="col">Użytkownicy</th>
+                <th scope="col" colspan="2">Operacje</th>
               </tr>
             </thead>
             <tbody>
@@ -222,4 +222,4 @@ console.log(this.state.itemToDelete);
     }
   }
 }
-export default Computers
+export default ComputersByOwner

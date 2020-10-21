@@ -169,14 +169,14 @@ export class Switches extends Component {
             </select>
             <input type="text" class="form-control" aria-label="Tu wpisz tekst wg którego chcesz filtrować dane" placeholder="Wpisz tekst wg którego chcesz filtrować dane" value={this.state.filterInputValue} onChange={this.handleFilterData}></input>
           </div>
-          <table class="table table-light table-hover">
+          <table class="table table-light table-hover text-center">
             <thead class="thead-dark">
               <tr>
-                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByID} >ID</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByOwner} >Właściciel</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByIP}>IP</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByMAC}>MAC</button></th>
-                <th scope="col" colspan="2">Operacje</th>
+                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByID} >ID</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByOwner} >Właściciel</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByIP}>IP</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByMAC}>MAC</button></th>
+                <th scope="col" colspan="2"><button type="button" class="btn btn-dark btn-block" disabled>Operacje</button></th>
               </tr>
             </thead>
             <tbody>
@@ -189,7 +189,7 @@ export class Switches extends Component {
                     : <td>-</td>
                   }
                   {device.owner != null
-                    ? <td><a href={Config.pageAddress + "/users/" + device.owner.identifier} class="btn btn-light">{device.owner.firstName} {device.owner.lastName}</a></td>
+                    ? <td><a href={Config.pageAddress + "/users/" + device.owner.id} class="btn btn-light">{device.owner.firstName} {device.owner.lastName}</a></td>
                     : <td>-</td>//Można dodać później przycisk, który pozwoli na późniejsze przypisywanie właściciela
                   }
                   {device.ipAddress

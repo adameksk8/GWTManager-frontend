@@ -10,7 +10,8 @@ export class Users extends Component {
     super(props);
     this.state = {
       error: null,
-      isLoaded: false,
+      isLoadedDevices: false,
+      isLoadedUsers:false,
       users: [],
       tempUsers: [],
       sortedBy: 'FirstNameAsc',
@@ -19,12 +20,14 @@ export class Users extends Component {
       paginationSelected: '1',
       itemsPerPage: 20,
       itemToDelete: ''
+      
     };
     this.handleSortByFirstName = this.handleSortByFirstName.bind(this);
     this.handleSortByLastName = this.handleSortByLastName.bind(this);
     this.handleSortByEMail = this.handleSortByEMail.bind(this);
     this.handleFilterData = this.handleFilterData.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
+    this.handleSortByDevicesCount = this.handleSortByDevicesCount.bind(this);
   }
 
   handleDeleteClick = () => {
@@ -88,6 +91,18 @@ if (this.state.itemToDelete){
     }
     this.forceUpdate();
   }
+  handleSortByDevicesCount() {
+    if (this.state.sortedBy !== 'DevicesCountAsc') {
+     // (a.adName > b.adName )|| b.adName==undefined ? 1 : -1
+      this.state.users.sort((a, b) => (this.devicesOfUserCount(a.id)>(this.devicesOfUserCount(b.id))?1:-1))
+      this.setState({ sortedBy: 'DevicesCountAsc' });
+    }
+    else {
+      this.state.users.sort((a, b) => (this.devicesOfUserCount(a.id)>(this.devicesOfUserCount(b.id))?-1:1))
+      this.setState({ sortedBy: 'DevicesCountDesc' });
+    }
+    this.forceUpdate();
+  }
   handleFilterChange(Event) {
     this.setState({ filterBy: Event.target.value })
     this.setState({ filterInputValue: '' })
@@ -104,6 +119,12 @@ if (this.state.itemToDelete){
     else if (this.state.filterBy === 'eMail') { result = users.filter((element) => new RegExp(pattern).test(element.email)) };
     this.setState({ users: result })
   }
+  
+  devicesOfUserCount(userId){
+    let result=this.state.devices.filter((element)=>userId==element.owner.id).length;
+    return result;
+  }
+
   componentDidMount() {
     const requestOptions = {
       headers: {
@@ -118,7 +139,7 @@ if (this.state.itemToDelete){
       .then(
         (result) => {
           this.setState({
-            isLoaded: true,
+            isLoadedUsers: true,
             users: result.slice(),
             tempUsers: result.slice()
           });
@@ -129,17 +150,37 @@ if (this.state.itemToDelete){
         // mających swoje źródło w komponencie.
         (error) => {
           this.setState({
-            isLoaded: true,
+            isLoadedDevices: false,
+            error
+          });
+        }
+      ).then(
+      fetch(Config.serverAddress + "/api/v1/devices", requestOptions)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            isLoadedDevices: true,
+            devices: result
+          });
+        },
+        // Uwaga: to ważne, żeby obsłużyć błędy tutaj, a
+        // nie w bloku catch(), aby nie przetwarzać błędów
+        // mających swoje źródło w komponencie.
+        (error) => {
+          this.setState({
+            isLoadedDevices: false,
             error
           });
         }
       )
+      )
   }
   render() {
-    const { error, isLoaded, users } = this.state;
+    const { error, isLoadedDevices, isLoadedUsers, users } = this.state;
     if (error) {
       return <div>Błąd: {error.message}</div>;
-    } else if (!isLoaded) {
+    } else if (!isLoadedUsers) {
       return <Loading />;
     } else {
       return (
@@ -160,13 +201,14 @@ if (this.state.itemToDelete){
             <input type="text" class="form-control" aria-label="Tu wpisz tekst wg którego chcesz filtrować dane" placeholder="Wpisz tekst wg którego chcesz filtrować dane" value={this.state.filterInputValue} onChange={this.handleFilterData}></input>
           </div>
 
-          <table class="table table-light table-hover">
+          <table class="table table-light table-hover text-center">
             <thead class="thead-dark">
-              <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByFirstName} >Imię</button></th>
-              <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByLastName} >Nazwisko</button></th>
-              <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByEMail} >Email</button></th>
-              <th scope="col">Rola</th>
-              <th scope="col" colspan="2">Operacje</th>
+              <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByFirstName} >Imię</button></th>
+              <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByLastName} >Nazwisko</button></th>
+              <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByEMail} >Email</button></th>
+              <th scope="col"><button type="button" class="btn btn-dark btn-block" >Rola</button></th>
+              <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByDevicesCount} >Urządzenia</button></th>
+              <th scope="col" colspan="2"><button type="button" class="btn btn-dark btn-block" disabled>Operacje</button></th>
             </thead>
             <tbody>
               {Array.isArray(this.state.users) && users.map(user => (
@@ -175,6 +217,11 @@ if (this.state.itemToDelete){
                   <td>{user.lastName}</td>
                   <td>{user.email}</td>
                   <td>{user.role}</td>
+                  <td>
+                    <button class="btn btn-dark b-2" disabled={this.devicesOfUserCount(user.id)<1} onClick={()=>
+                    window.location.href= "/users/" + user.id+"/devices"}>Wyświetl ({this.devicesOfUserCount(user.id)})
+                    </button>
+                  </td>
                   <td><a class="btn btn-info b-2" href={Config.pageAddress + "/users/" + user.id}>Szczegóły</a></td>
                   <td><button type="button" class="btn btn-danger b-2" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
                     this.setState({ itemToDelete: user })

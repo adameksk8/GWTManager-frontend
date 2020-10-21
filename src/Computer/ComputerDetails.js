@@ -215,7 +215,9 @@ export class ComputerDetails extends Component {
               if (this.validateInput(event.target, new RegExp('^[a-zA-Z0-9]{2,16}$'))) this.setState({ model: event.target.value });
             }}></input>
               <label for="cpu">Procesor</label>
-              <input type="text" class="form-control" id="cpu" defaultValue={this.state.cpu} disabled={this.state.formDisabled} onChange={this.handleChangeCpu}></input>
+              <input type="text" class="form-control is-valid" id="cpu" defaultValue={this.state.cpu} disabled={this.state.formDisabled} required onChange={(event)=>{
+                if (this.validateInput(event.target, new RegExp('^($|([a-zA-Z0-9]{2,16})$)'))) this.setState({ cpu: event.target.value });
+              }}></input>
               <label for="ram">RAM</label>
               <input type="text" class="form-control is-valid" id="ram" defaultValue={this.state.ram} disabled={this.state.formDisabled} onChange={(event) => {
                             if (this.validateInput(event.target, new RegExp('^($|[1-9]{1}[0-9]{0,3}$)'))) this.setState({ ram: event.target.value });

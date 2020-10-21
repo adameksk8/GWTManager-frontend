@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import Config from '../Config'
+import Config from '../Config';
 import Loading from '../Loading';
+import ModalConfirmDelete from '../ModalConfirmDelete';
 export class Buildings extends Component {
   constructor(props) {
     super(props);
@@ -11,31 +12,28 @@ export class Buildings extends Component {
       tempBuildings: [], //kopia, na której nie wykonujemy żadnych zmian
       sortedBy: 'IDAsc',
       filterBy: 'ID',
-      filterInputValue: ''
+      filterInputValue: '',
+      buildingToDelete:''
     };
 
   }
-  handleDeleteClick = siteId => {
-    let confirmDelete = window.confirm("Czy na pewno usunąć?");
-    if (confirmDelete) {
-      const requestOptions = {
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
-        }
-      };
 
-      fetch(Config.serverAddress + "/api/v1/buildings/" + siteId, requestOptions).then((response) => {
-        return response.json();
-      }).then((result) => {
-        console.log("Usunięto");
-        alert("Usunięto");
-      })
-        .then(() => {
-          window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
-        });
-    }
-  }
+  handleDeleteClick = ()=> {
+    const requestOptions = {
+      method: 'DELETE',
+      headers: { 
+        'Authorization': 'Bearer '+localStorage.getItem('Authorization')
+      }
+    };
+    fetch(Config.serverAddress + "/api/v1/buildings/" + this.state.buildingToDelete.id, requestOptions).then((response) => {
+      return response.json();
+    }).then((result) => {
+    })
+      .then(() => {
+        window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
+      });
+}
+
   handleSortByID = () => {
     if (this.state.sortedBy !== 'IDAsc') {
       this.state.buildings.sort((a, b) => a.id > b.id ? 1 : -1)
@@ -147,23 +145,23 @@ export class Buildings extends Component {
               {console.log(this.state.buildings)}
               {Array.isArray(this.state.buildings) &&
                 buildings.map(building => (
-                  <tr key={building.identifier}>
+                  <tr key={building.id}>
                     {building.number
                       ? <td>{building.number}</td>
                       : <td>-</td>
                     }
-                    {building.site.siteId
-                      ? <td>{building.site.siteId}</td>
+                    {building.site.siteId&&building.site.name
+                      ?<td><a href={Config.pageAddress + "/sites/" + building.site.id} class="btn btn-light">{building.site.siteId+" "+building.site.name}</a></td>
                       : <td>-</td>
                     }
-                    <td><a class="btn btn-info b-2" href={Config.pageAddress + "/buildings/" + building.identifier}>Szczegóły</a></td>
-                    <td><button class="btn btn-danger b-2" onClick={() => {
-                      this.handleDeleteClick(building.identifier);
+                    <td><a class="btn btn-info b-2" href={Config.pageAddress + "/buildings/" + building.id}>Szczegóły</a></td>
+                    <td><button class="btn btn-danger b-2" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {this.setState({ buildingToDelete: building})
                     }}>Usuń</button></td>
                   </tr>
                 ))}
             </tbody>
           </table>
+          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} toDelete={"budynek o numerze: "+this.state.buildingToDelete.number} />
         </div >
       );
     }

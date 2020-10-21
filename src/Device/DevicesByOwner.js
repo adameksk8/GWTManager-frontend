@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Config from '../Config'
-export class Device extends Component {
+export class DevicesByOwner extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -13,8 +13,6 @@ export class Device extends Component {
       filterInputValue: ''
     };
     this.handleSortByID = this.handleSortByID.bind(this);
-    this.handleSortByType=this.handleSortByType.bind(this);
-    this.handleSortByOwner = this.handleSortByOwner.bind(this);
     this.handleSortByIP = this.handleSortByIP.bind(this);
     this.handleFilterData = this.handleFilterData.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
@@ -53,36 +51,8 @@ export class Device extends Component {
     }
     this.forceUpdate();
   }
-  handleSortByType() {
-    if (this.state.sortedBy !== 'TypeAsc') {
-      this.state.devices.sort((a, b) => a.deviceType > b.deviceType ? 1 : -1)
-      this.setState({ sortedBy: 'TypeAsc' })
-    }
-    else {
-      this.state.devices.sort((a, b) => a.deviceType > b.deviceType ? -1 : 1)
-      this.setState({ sortedBy: 'TypeDesc' })
-    }
-    this.forceUpdate();
-  }
-  handleSortByOwner() {
-    if (this.state.sortedBy !== 'OwnerAsc') {
-      this.state.devices.sort((a, b) => {
-        if (a.owner === null || a.owner.lastName === null) return -1;
-        if (b.owner === null || b.owner.lastName === null) return 1;
-        return a.owner.lastName > b.owner.lastName ? 1 : -1
-      })
-      this.setState({ sortedBy: 'OwnerAsc' })
-    }
-    else {
-      this.state.devices.sort((a, b) => {
-        if (a.owner === null || a.owner.lastName === null) return -1;
-        if (b.owner === null || b.owner.lastName === null) return 1;
-        return a.owner.lastName < b.owner.lastName ? 1 : -1
-      })
-      this.setState({ sortedBy: 'OwnerDesc' })
-    }
-    this.forceUpdate();
-  }
+
+
   handleSortByIP() {
     if (this.state.sortedBy !== 'IPAsc') {
       this.state.devices.sort((a, b) => a.ipAddress > b.ipAddress ? 1 : -1)
@@ -112,7 +82,6 @@ export class Device extends Component {
       this.setState({ devices: this.state.tempDevices })
       let result = [];
       if (this.state.filterBy === 'ID') result = this.state.devices.filter((element) => (element.deviceId != null) ? new RegExp(pattern).test(element.deviceId) : false);
-      if (this.state.filterBy === 'Owner') result = this.state.devices.filter((element) => (element.owner != null) ? new RegExp(pattern).test(element.owner.lastName) : false);
       if (this.state.filterBy === 'IP') result = this.state.devices.filter((element) => (element.ipAddress != null) ? new RegExp(pattern).test(element.ipAddress) : false);
       if (this.state.filterBy === 'AdName') result = this.state.devices.filter((element) => (element.adName != null) ? new RegExp(pattern).test(element.adName) : false);
       this.setState({ devices: result })
@@ -127,7 +96,8 @@ export class Device extends Component {
         'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
       }
     };
-    fetch(Config.serverAddress + "/api/v1/devices", requestOptions)
+    fetch(Config.serverAddress + "/api/v1/users/"+this.props.match.params.id+"/devices", requestOptions)
+    //fetch(Config.serverAddress + "/api/v1/devices", requestOptions)
       .then(res => res.json())
       .then(
         (result) => {
@@ -159,14 +129,13 @@ export class Device extends Component {
     } else {
       return (
         <div>
-          <h1>Lista urządzeń</h1>
+          <h1>Lista urządzeń użytkownika {(this.state.devices[0]!=undefined) &&(this.state.devices[0].owner.firstName+" "+this.state.devices[0].owner.lastName)} </h1>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
               <label class="input-group-text" for="inputGroupSelect01">Filtruj</label>
             </div>
             <select class="custom-select col-2" id="inputGroupSelect01" onChange={this.handleFilterChange}>
               <option selected value="ID">ID</option>
-              <option value="Owner">Właściciel (nazwisko)</option>
               <option value="IP">IP</option>
             </select>
             <input type="text" class="form-control" aria-label="Tu wpisz tekst wg którego chcesz filtrować dane" placeholder="Wpisz tekst wg którego chcesz filtrować dane" value={this.state.filterInputValue} onChange={this.handleFilterData}></input>
@@ -174,11 +143,10 @@ export class Device extends Component {
           <table class="table table-light table-hover text-center">
             <thead class="thead-dark">
               <tr>
-                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByID}>ID</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByType}>Typ</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByOwner}>Właściciel</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByIP}>IP</button></th>
-                <th scope="col" colspan="2"><button type="button" class="btn btn-dark btn-block">Operacje</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByID} >ID</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark btn-block">Typ</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByIP} >IP</button></th>
+                <th scope="col" colspan="2"><button type="button" class="btn btn-dark btn-block"disabled>Operacje</button></th>
               </tr>
             </thead>
             <tbody>
@@ -191,10 +159,6 @@ export class Device extends Component {
                   {device.deviceType
                     ? <td>{device.deviceType}</td>
                     : <td>-</td>
-                  }
-                  {device.owner != null
-                    ? <td><a href={Config.pageAddress + "/users/" + device.owner.identifier} class="btn btn-light">{device.owner.firstName} {device.owner.lastName}</a></td>
-                    : <td>-</td>//Można dodać później przycisk, który pozwoli na późniejsze przypisywanie właściciela
                   }
                   {device.ipAddress
                     ? <td>{device.ipAddress}</td>
@@ -213,4 +177,4 @@ export class Device extends Component {
     }
   }
 }
-export default Device
+export default DevicesByOwner

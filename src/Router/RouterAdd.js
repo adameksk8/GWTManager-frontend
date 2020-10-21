@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import Config from '../Config';
 import validateInput from '../functions/validateInput';
 import validateID from '../functions/validateID';
+import $ from 'jquery';
+import Modal from '../Modal';
+
 export class RouterAdd extends Component {
 
   constructor(props) {
@@ -101,10 +104,11 @@ export class RouterAdd extends Component {
     }
     ).then(res => {
       if (res.status == 200) {
-        alert("Zapisano");
+        $('#modalSuccess').modal('show');
       }
       else {
-        alert("Błąd: " + res.status + " " + res.statusText + " Nie zapisano.");
+        $('#modalError').modal('show');
+        //alert("Błąd: " + res.status + " " + res.statusText + " Nie zapisano.");
       }
     });
 
@@ -175,6 +179,8 @@ export class RouterAdd extends Component {
           </div>
         </form>
         <button href={Config.pageAddress + "/routers/add"} class="btn btn-success" disabled={document.getElementsByClassName("is-invalid").length > 0} onClick={this.handleSubmit}>Zapisz</button>
+        <Modal header="Sukces" body={"Dodano router ID: "+ this.state.deviceId} id="modalSuccess" onCloseClicked={()=>window.location.href='/routers'} />
+        <Modal header="Błąd" body={"Dodawanie nie powiodło się."} id="modalError" />
       </div>
     )
   }
