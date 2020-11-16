@@ -49,7 +49,7 @@ export class Login extends Component {
                          
                     </form>
                 </div >
-                <Modal header="Sukces!" body={"Zalogowano: "+this.state.username} id="modalSuccess" onCloseClicked={()=>window.location.reload()} />
+                <Modal header="Sukces!" body={"Zalogowano"} id="modalSuccess" onCloseClicked={()=>window.location.reload()} />
                 <Modal header="Błąd!" body={"Nie zalogowano. Niepoprawny login lub hasło."} id="modalError" />
             </div>
         );

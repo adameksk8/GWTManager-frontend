@@ -157,7 +157,7 @@ export class App extends Component {
             </Switch>
           </main>
           <footer>
-            <a href="mailto:adam.nowak.it@gmail.com" class="text-white">GWTManager! v1.0 &copy;Adam Nowak</a>
+            <a href="mailto:adam.nowak.it@gmail.com" class="text-white">GWTManager! v1.0 &copy; Adam Nowak 2020</a>
           </footer>
           <Modal header="Wylogowano" body={"Poprawnie wylogowano z aplikacji"} id="modalLogout" onCloseClicked={()=>window.location.href='/home'} />
         </div>

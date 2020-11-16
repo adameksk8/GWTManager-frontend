@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import Config from '../Config'
+import Config from '../Config';
+import ModalConfirmDelete from '../ModalConfirmDelete';
+import { Modal } from '../Modal';
+import $ from 'jquery';
 export class DevicesByOwner extends Component {
   constructor(props) {
     super(props);
@@ -10,16 +13,17 @@ export class DevicesByOwner extends Component {
       tempDevices: [], //kopia, na której nie wykonujemy żadnych zmian
       sortedBy: 'IDAsc',
       filterBy: 'ID',
-      filterInputValue: ''
+      filterInputValue: '',
+      itemToDelete:''
     };
     this.handleSortByID = this.handleSortByID.bind(this);
     this.handleSortByIP = this.handleSortByIP.bind(this);
     this.handleFilterData = this.handleFilterData.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
   }
+
   handleDeleteClick = deviceId => {
-    let confirmDelete = window.confirm("Czy na pewno usunąć?");
-    if (confirmDelete) {
+
       const requestOptions = {
         method: 'DELETE',
         headers: {
@@ -29,17 +33,19 @@ export class DevicesByOwner extends Component {
         }
       };
 
-      fetch(Config.serverAddress + "/api/v1/devices/" + deviceId, requestOptions).then((response) => {
-        return response.json();
-      }).then((result) => {
-        console.log("Usunięto");
-        alert("Usunięto");
-      })
-        .then(() => {
-          window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
+      fetch(Config.serverAddress + "/api/v1/devices/" + this.state.itemToDelete.id, requestOptions).then((response) => {
+        if (response.status===200){
+          this.state.devices.splice(this.state.devices.findIndex(a=>a.id===this.state.itemToDelete.id),1);
+          this.forceUpdate();
+          $('#modalSuccess').modal('show');
+          return response.json()
+          }
+          else {
+            $('#modalError').modal('show');
+          }
         });
-    }
-  }
+      }
+    
   handleSortByID() {
     if (this.state.sortedBy !== 'IDAsc') {
       this.state.devices.sort((a, b) => a.deviceId > b.deviceId ? 1 : -1)
@@ -164,14 +170,17 @@ export class DevicesByOwner extends Component {
                     ? <td>{device.ipAddress}</td>
                     : <td>-</td>
                   }
-                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/"+device.deviceType.toLowerCase()+"s/" + device.identifier}>Szczegóły</a></td>
-                  <td><button class="btn btn-danger b-2" onClick={() => {
-                    this.handleDeleteClick(device.identifier);
+                  <td><a class="btn btn-info b-2 btn-block" href={Config.pageAddress + "/"+device.deviceType.toLowerCase()+"s/" + device.identifier}>Szczegóły</a></td>
+                  <td><button class="btn btn-danger b-2 btn-block" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {this.setState({ itemToDelete: device})
                   }}>Usuń</button></td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <Modal header="Sukces" body={"Usunięto urządzenie"} id="modalSuccess" />
+          <Modal header="Błąd" body={"Usuwanie urządzenia numer: "+this.state.itemToDelete.level +" nie powiodło się. Sprawdź czy urządzenie nie jest powiązane z innym obiektem."} 
+          id="modalError" />
+          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} toDelete={"urządzenie: "+this.state.itemToDelete.deviceId} />
         </div >
       );
     }

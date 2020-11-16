@@ -28,12 +28,12 @@ function login(username, password) {
             // store user details and jwt token in local storage to keep user logged in between page refreshes
             localStorage.setItem("Authorization",user["Authorization"]);
             localStorage.setItem("username",user["username"]);
-            var now = new Date();
-            var time= now.getTime();
-            var expireTime=time+10*36000;
-            now.setTime(expireTime);
-            document.cookie="Authorization="+user["Authorization"]+";expires="+now.toGMTString();
-            document.cookie="username="+user["username"]+";expires="+now.toGMTString();
+            //var now = new Date();
+            //var time= now.getTime();
+            //var expireTime=time+10*36000;
+           // now.setTime(expireTime);
+            //document.cookie="Authorization="+user["Authorization"]+";expires="+now.toGMTString();
+            //document.cookie="username="+user["username"]+";expires="+now.toGMTString();
             currentUserSubject.next(user);
             }
         },

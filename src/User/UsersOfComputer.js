@@ -173,8 +173,8 @@ export class UsersOfComputer extends Component {
                   <td>{user.firstName}</td>
                   <td>{user.lastName}</td>
                   <td>{user.email}</td>
-                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/users/" + user.id}>Szczegóły</a></td>
-                  <td><button class="btn btn-danger b-2" data-toggle="modal" data-target="#modalConfirmDelete" onClick={(event) => {
+                  <td><a class="btn btn-info b-2 btn-block" href={Config.pageAddress + "/users/" + user.id}>Szczegóły</a></td>
+                  <td><button class="btn btn-danger b-2 btn-block" data-toggle="modal" data-target="#modalConfirmDelete" onClick={(event) => {
                     this.setState({userToDelete:user});
                   }
 

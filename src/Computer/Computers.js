@@ -95,33 +95,39 @@ console.log(this.state.itemToDelete);
     }
     this.forceUpdate();
   }
-  handleFilterChange=(Event)=>{
-    this.setState({ filterBy: Event.target.value })
-    this.setState({ filterInputValue: "" })
-    this.setState({ computers: this.state.tempComputers })
-    //this.state.computers = this.state.tempComputers;
-    this.forceUpdate();
-  }
-  handleFilterData=(Event)=> {
-    if (Event.target.value === '') {
-      this.setState({ computers: this.state.tempComputers })
-      this.setState({ filterInputValue: "" })
-      this.forceUpdate();
+  //computer.usedBy != null ? computer.usedBy.length : 0
+  handleSortByUsersCount=()=> {
+    if (this.state.sortedBy !== 'UsersCountAsc') {
+      this.state.computers.sort((a, b) => 
+       (a.usedBy.length > b.usedBy.length )|| b.usedBy==null ? 1 : -1)
+      this.setState({ sortedBy: 'UsersCountAsc' })
     }
     else {
-      this.setState({ filterInputValue: Event.target.value })
-      let pattern = Event.target.value;
-      console.log(pattern);
-      this.setState({ computers: this.state.tempComputers })
-      let result = [];
-      if (this.state.filterBy === 'ID') result = this.state.computers.filter((element) => (element.deviceId != null) ? new RegExp(pattern).test(element.deviceId) : false);
-      if (this.state.filterBy === 'Owner') result = this.state.computers.filter((element) => (element.owner != null) ? new RegExp(pattern).test(element.owner.lastName) : false);
-      if (this.state.filterBy === 'IP') result = this.state.computers.filter((element) => (element.ipAddress != null) ? new RegExp(pattern).test(element.ipAddress) : false);
-      if (this.state.filterBy === 'AdName') result = this.state.computers.filter((element) => (element.adName != null) ? new RegExp(pattern).test(element.adName) : false);
-      this.setState({ computers: result })
-      this.forceUpdate();
+      this.state.computers.sort((a, b) =>
+      (a.usedBy.length < b.usedBy.length )|| a.usedBy==null ? 1 : -1)
+      this.setState({ sortedBy: 'UsersCountDesc' })
     }
+    this.forceUpdate();
   }
+
+  handleFilterChange=(Event)=> {
+    this.setState({ filterBy: Event.target.value })
+    this.setState({ filterInputValue: '' })
+    this.setState({ devices: this.state.tempComputers.slice() })
+    this.forceUpdate();
+  }
+  handleFilterData=(Event) =>{
+    let computers = this.state.tempComputers.slice();
+    this.setState({ filterInputValue: Event.target.value })
+    let pattern = "^" + Event.target.value;
+    let result = [];
+    if (this.state.filterBy === 'ID') { result = computers.filter((element) => new RegExp(pattern).test(element.deviceId)) }
+    else if (this.state.filterBy === 'Owner') { result = computers.filter((element) => new RegExp(pattern).test(element.owner.lastName)) }
+    else if (this.state.filterBy === 'IP') { result = computers.filter((element) => new RegExp(pattern).test(element.ipAddress)) }
+    else if (this.state.filterBy === 'AdName') result = computers.filter((element) => new RegExp(pattern).test(element.adName))
+    this.setState({ computers: result })
+  }
+
   componentDidMount() {
     const requestOptions = {
       headers: {
@@ -168,7 +174,8 @@ console.log(this.state.itemToDelete);
               <label class="input-group-text" for="inputGroupSelect01">Filtruj</label>
             </div>
             <select class="custom-select col-2" id="inputGroupSelect01" onChange={this.handleFilterChange}>
-              <option selected value="ID">ID</option>
+            <option selected disabled>Wybierz filtr</option>
+              <option value="ID">ID</option>
               <option value="Owner">Właściciel (nazwisko)</option>
               <option value="IP">IP</option>
               <option value="AdName">Nazwa AD</option>
@@ -182,7 +189,7 @@ console.log(this.state.itemToDelete);
                 <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByOwner} >Właściciel</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByIP} >IP</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark btn block" onClick={this.handleSortByAdName} >Nazwa AD</button></th>
-                <th scope="col" ><button type="button" class="btn btn-dark btn block">Użytkownicy</button></th>
+                <th scope="col" ><button type="button" class="btn btn-dark btn block" onClick={this.handleSortByUsersCount}>Użytkownicy</button></th>
                 <th scope="col" colspan="2"><button type="button" class="btn btn-dark btn-block"disabled>Operacje</button></th>
               </tr>
             </thead>
@@ -194,7 +201,7 @@ console.log(this.state.itemToDelete);
                     : <td>-</td>
                   }
                   {computer.owner != null
-                    ? <td><a href={Config.pageAddress + "/users/" + computer.owner.id} class="btn btn-light">{computer.owner.firstName} {computer.owner.lastName}</a></td>
+                    ? <td><a href={Config.pageAddress + "/users/" + computer.owner.id} class="btn btn-light btn-block">{computer.owner.firstName} {computer.owner.lastName}</a></td>
                     : <td>-</td>//Można dodać później przycisk, który pozwoli na późniejsze przypisywanie właściciela
                   }
                   {computer.ipAddress
@@ -205,9 +212,9 @@ console.log(this.state.itemToDelete);
                     ? <td>{computer.adName}</td>
                     : <td>-</td>
                   }
-                  <td><a class="btn btn-primary b-2" href={Config.pageAddress + "/computers/" + computer.identifier + "/users/"}>Wyświetl ({computer.usedBy != null ? computer.usedBy.length : 0})</a></td>
-                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/computers/" + computer.identifier}>Szczegóły</a></td>
-                  <td><button type="button" class="btn btn-danger b-2" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
+                  <td><a class="btn btn-primary b-2 btn-block" href={Config.pageAddress + "/computers/" + computer.identifier + "/users/"}>Wyświetl ({computer.usedBy != null ? computer.usedBy.length : 0})</a></td>
+                  <td><a class="btn btn-info b-2 btn-block" href={Config.pageAddress + "/computers/" + computer.identifier}>Szczegóły</a></td>
+                  <td><button type="button" class="btn btn-danger b-2 btn-block" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
                     this.setState({ itemToDelete: computer })
                   }}>Usuń</button></td>
                 </tr>

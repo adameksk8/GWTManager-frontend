@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Config from '../Config'
 import Loading from '../Loading';
 import ModalConfirmDelete from'../ModalConfirmDelete';
+import { Modal } from '../Modal';
+import $ from 'jquery';
 export class Sites extends Component {
   constructor(props) {
     super(props);
@@ -13,7 +15,7 @@ export class Sites extends Component {
       sortedBy: 'IDAsc',
       filterBy: 'ID',
       filterInputValue: '',
-      siteToDelete:''
+      itemToDelete:''
     };
 
   }
@@ -25,24 +27,42 @@ export class Sites extends Component {
         'Authorization': 'Bearer '+localStorage.getItem('Authorization')
       }
     };
-    fetch(Config.serverAddress + "/api/v1/sites/" + this.state.siteToDelete.id, requestOptions).then((response) => {
-      return response.json();
-    }).then((result) => {
+    fetch(Config.serverAddress + "/api/v1/sites/" + this.state.itemToDelete.id, requestOptions).then((response) => {
+      if (response.status===200){
+        this.state.sites.splice(this.state.sites.findIndex(a=>a.id===this.state.itemToDelete.id),1);
+        this.forceUpdate();
+        $('#modalSuccess').modal('show');
+        return response.json()
+        }
+        else {
+          $('#modalError').modal('show');
+        }
     })
-      .then(() => {
-        window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
-      });
-}
+  }
+
+
+
+/*if (response.status===200){
+  this.state.users.splice(this.state.users.findIndex(a=>a.id===this.state.itemToDelete.id),1);
+  this.forceUpdate();
+  $('#modalSuccess').modal('show');
+  return response.json()
+  }
+  else {
+    $('#modalError').modal('show');
+  }*/
+
+
 
 
 
   handleSortByID= ()=>{
     if (this.state.sortedBy !== 'IDAsc') {
-      this.state.sites.sort((a, b) => a.deviceId > b.deviceId ? 1 : -1)
+      this.state.sites.sort((a, b) => a.siteId > b.siteId ? 1 : -1)
       this.setState({ sortedBy: 'IDAsc' })
     }
     else {
-      this.state.sites.sort((a, b) => a.deviceId < b.deviceId ? 1 : -1)
+      this.state.sites.sort((a, b) => a.siteId < b.siteId ? 1 : -1)
       this.setState({ sortedBy: 'IDDesc' })
     }
     this.forceUpdate();
@@ -62,30 +82,23 @@ export class Sites extends Component {
     }
     this.forceUpdate();
   }
-
-  handleFilterChange=Event=> {
+  handleFilterChange=(Event)=> {
     this.setState({ filterBy: Event.target.value })
-    this.setState({ filterInputValue: "" })
-    this.setState({ sites: this.state.tempSites })
+    this.setState({ filterInputValue: '' })
+    this.setState({ devices: this.state.tempSites.slice() })
     this.forceUpdate();
   }
-  handleFilterData=Event=> {
-    if (Event.target.value === '') {
-      this.setState({ sites: this.state.tempSites })
-      this.setState({ filterInputValue: "" })
-      this.forceUpdate();
-    }
-    else {
-      this.setState({ filterInputValue: Event.target.value })
-      let pattern = Event.target.value;
-      this.setState({ sites: this.state.tempSites })
-      let result = [];
-      if (this.state.filterBy === 'ID') result = this.state.sites.filter((element) => (element.siteId != null) ? new RegExp(pattern).test(element.siteId) : false);
-      if (this.state.filterBy === 'Name') result = this.state.sites.filter((element) => (element.name != null) ? new RegExp(pattern).test(element.name) : false);
-      this.setState({ sites: result })
-      this.forceUpdate();
-    }
+  handleFilterData=(Event) =>{
+    let sites = this.state.tempSites.slice();
+    this.setState({ filterInputValue: Event.target.value })
+    let pattern = "^" + Event.target.value;
+    let result = [];
+    if (this.state.filterBy === 'ID') { result = sites.filter((element) => new RegExp(pattern).test(element.siteId)) }
+    else if (this.state.filterBy === 'Name') { result = sites.filter((element) => new RegExp(pattern).test(element.name)) }
+    this.setState({ sites: result })
   }
+
+
   componentDidMount() {
     const requestOptions = {
       headers: {
@@ -123,24 +136,25 @@ export class Sites extends Component {
     } else {
       return (
         <div>
-          <h1>Lista lokalizacji</h1>
+          <h1>Lista kompleksów</h1>
           <a href={Config.pageAddress + "/sites/add"} class="btn btn-success m-2">Dodaj nową</a>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
               <label class="input-group-text" for="inputGroupSelect01">Filtruj</label>
             </div>
             <select class="custom-select col-2" id="inputGroupSelect01" onChange={this.handleFilterChange}>
-              <option selected value="ID">ID</option>
+            <option selected disabled>Wybierz filtr</option>
+              <option value="ID">Numer</option>
               <option value="Name">Nazwa</option>
             </select>
             <input type="text" class="form-control" aria-label="Tu wpisz tekst wg którego chcesz filtrować dane" placeholder="Wpisz tekst wg którego chcesz filtrować dane" value={this.state.filterInputValue} onChange={this.handleFilterData}></input>
           </div>
-          <table class="table table-light table-hover">
+          <table class="table table-light table-hover text-center">
             <thead class="thead-dark">
               <tr>
-                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByID} >Numer</button></th>
-                <th scope="col"><button type="button" class="btn btn-dark" onClick={this.handleSortByName} >Nazwa</button></th>
-                <th scope="col" colspan="2">Operacje</th>
+                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByID}>Numer</button></th>
+                <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByName}>Nazwa</button></th>
+                <th scope="col" colspan="2"><button type="button" class="btn btn-dark btn-block" disabled>Operacje</button></th>
               </tr>
             </thead>
             <tbody>
@@ -156,15 +170,18 @@ export class Sites extends Component {
                       ? <td>{site.name}</td>
                       : <td>-</td>
                     }
-                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/sites/" + site.id}>Szczegóły</a></td>
-                  <td><button class="btn btn-danger b-2 " data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
-                    this.setState({ siteToDelete: site })
+                  <td><a class="btn btn-info b-2 btn-block" href={Config.pageAddress + "/sites/" + site.id}>Szczegóły</a></td>
+                  <td><button class="btn btn-danger b-2 btn-block " data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
+                    this.setState({ itemToDelete: site })
                   }}>Usuń</button></td>
                   </tr>
                 ))}
             </tbody>
           </table>
-          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} toDelete={"kompleks o ID: "+this.state.siteToDelete.siteId} />
+          <Modal header="Sukces" body={"Usunięto kompleks"} id="modalSuccess" />
+          <Modal header="Błąd" body={"Usuwanie kompleksu numer: "+this.state.itemToDelete.siteId +" o nazwie: "+this.state.itemToDelete.name+ " nie powiodło się. Sprawdź czy kompleks nie jest powiązany z innym obiektem."} 
+          id="modalError" />
+          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} toDelete={"kompleks o ID: "+this.state.itemToDelete.siteId} />
         </div >
       );
     }

@@ -218,12 +218,12 @@ if (this.state.itemToDelete){
                   <td>{user.email}</td>
                   <td>{user.role}</td>
                   <td>
-                    <button class="btn btn-dark b-2" disabled={this.devicesOfUserCount(user.id)<1} onClick={()=>
+                    <button class="btn btn-dark b-2 btn-block" disabled={this.devicesOfUserCount(user.id)<1} onClick={()=>
                     window.location.href= "/users/" + user.id+"/devices"}>Wyświetl ({this.devicesOfUserCount(user.id)})
                     </button>
                   </td>
-                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/users/" + user.id}>Szczegóły</a></td>
-                  <td><button type="button" class="btn btn-danger b-2" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
+                  <td><a class="btn btn-info b-2 btn-block" href={Config.pageAddress + "/users/" + user.id}>Szczegóły</a></td>
+                  <td><button type="button" class="btn btn-danger b-2 btn-block" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
                     this.setState({ itemToDelete: user })
                   }}>Usuń</button></td>
                 </tr>

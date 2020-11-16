@@ -89,30 +89,22 @@ export class Routers extends Component {
     }
     this.forceUpdate();
   }
-  handleFilterChange(Event) {
+  handleFilterChange=(Event)=> {
     this.setState({ filterBy: Event.target.value })
-    this.setState({ filterInputValue: "" })
-    this.setState({ routers: this.state.tempRouters })
+    this.setState({ filterInputValue: '' })
+    this.setState({ devices: this.state.tempRouters.slice() })
     this.forceUpdate();
   }
-  handleFilterData(Event) {
-    if (Event.target.value === '') {
-      this.setState({ routers: this.state.tempRouters })
-      this.setState({ filterInputValue: "" })
-      this.forceUpdate();
-    }
-    else {
-      this.setState({ filterInputValue: Event.target.value })
-      let pattern = Event.target.value;
-      this.setState({ routers: this.state.tempRouters })
-      let result = [];
-      if (this.state.filterBy === 'ID') result = this.state.routers.filter((element) => (element.deviceId != null) ? new RegExp(pattern).test(element.deviceId) : false);
-      if (this.state.filterBy === 'Owner') result = this.state.routers.filter((element) => (element.owner != null) ? new RegExp(pattern).test(element.owner.lastName) : false);
-      if (this.state.filterBy === 'IP') result = this.state.routers.filter((element) => (element.ipAddress != null) ? new RegExp(pattern).test(element.ipAddress) : false);
-      if (this.state.filterBy === 'MAC') result = this.state.routers.filter((element) => (element.macAddress != null) ? new RegExp(pattern).test(element.macAddress) : false);
-      this.setState({ routers: result })
-      this.forceUpdate();
-    }
+  handleFilterData=(Event) =>{
+    let routers = this.state.tempRouters.slice();
+    this.setState({ filterInputValue: Event.target.value })
+    let pattern = "^" + Event.target.value;
+    let result = [];
+    if (this.state.filterBy === 'ID') { result = routers.filter((element) => new RegExp(pattern).test(element.deviceId)) }
+    else if (this.state.filterBy === 'Owner') { result = routers.filter((element) => new RegExp(pattern).test(element.owner.lastName)) }
+    else if (this.state.filterBy === 'IP') { result = routers.filter((element) => new RegExp(pattern).test(element.ipAddress)) }
+    else if (this.state.filterBy === 'MAC') { result = routers.filter((element) => new RegExp(pattern).test(element.macAddress)) }
+    this.setState({ routers: result })
   }
   componentDidMount() {
     const requestOptions = {
@@ -158,10 +150,11 @@ export class Routers extends Component {
               <label class="input-group-text" for="inputGroupSelect01">Filtruj</label>
             </div>
             <select class="custom-select col-2" id="inputGroupSelect01" onChange={this.handleFilterChange}>
-              <option selected value="ID">ID</option>
+            <option selected disabled>Wybierz filtr</option>
+              <option value="ID">ID</option>
               <option value="Owner">Właściciel (nazwisko)</option>
               <option value="IP">IP</option>
-              <option value="macAddress">MAC</option>
+              <option value="MAC">MAC</option>
             </select>
             <input type="text" class="form-control" aria-label="Tu wpisz tekst wg którego chcesz filtrować dane" placeholder="Wpisz tekst wg którego chcesz filtrować dane" value={this.state.filterInputValue} onChange={this.handleFilterData}></input>
           </div>
@@ -195,8 +188,8 @@ export class Routers extends Component {
                     ? <td>{device.macAddress}</td>
                     : <td>-</td>
                   }
-                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/routers/" + device.identifier}>Szczegóły</a></td>
-                  <td><button class="btn btn-danger b-2 " data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
+                  <td><a class="btn btn-info b-2 btn-block" href={Config.pageAddress + "/routers/" + device.identifier}>Szczegóły</a></td>
+                  <td><button class="btn btn-danger b-2 btn-block " data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
                     this.setState({ itemToDelete: device })
                   }}>Usuń</button></td>
                 </tr>

@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import Config from '../Config'
+import Config from '../Config';
+import ModalConfirmDelete from '../ModalConfirmDelete';
+import { Modal } from '../Modal';
+import $ from 'jquery';
 export class Device extends Component {
   constructor(props) {
     super(props);
@@ -10,7 +13,8 @@ export class Device extends Component {
       tempDevices: [], //kopia, na której nie wykonujemy żadnych zmian
       sortedBy: 'IDAsc',
       filterBy: 'ID',
-      filterInputValue: ''
+      filterInputValue: '',
+      itemToDelete:''
     };
     this.handleSortByID = this.handleSortByID.bind(this);
     this.handleSortByType=this.handleSortByType.bind(this);
@@ -19,29 +23,30 @@ export class Device extends Component {
     this.handleFilterData = this.handleFilterData.bind(this);
     this.handleFilterChange = this.handleFilterChange.bind(this);
   }
-  handleDeleteClick = deviceId => {
-    let confirmDelete = window.confirm("Czy na pewno usunąć?");
-    if (confirmDelete) {
-      const requestOptions = {
-        method: 'DELETE',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
-        }
-      };
+  handleDeleteClick = () => {
+    const requestOptions = {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('Authorization')
+      }
+    };
 
-      fetch(Config.serverAddress + "/api/v1/devices/" + deviceId, requestOptions).then((response) => {
-        return response.json();
-      }).then((result) => {
-        console.log("Usunięto");
-        alert("Usunięto");
-      })
-        .then(() => {
-          window.location.reload();//trzeba poprawić tak, aby nie przeładowywało całej strony
-        });
-    }
+  if (this.state.itemToDelete){
+    fetch(Config.serverAddress + "/api/v1/devices/" + this.state.itemToDelete.id, requestOptions).then((response) => {
+      if (response.status===200){
+      this.state.devices.splice(this.state.devices.findIndex(a=>a.id===this.state.itemToDelete.id),1);
+      this.forceUpdate();
+      $('#modalSuccess').modal('show');
+      return response.json()
+      }
+      else {
+        alert ("Wystąpił błąd!")
+      }
+    })
   }
+}
   handleSortByID() {
     if (this.state.sortedBy !== 'IDAsc') {
       this.state.devices.sort((a, b) => a.deviceId > b.deviceId ? 1 : -1)
@@ -94,31 +99,24 @@ export class Device extends Component {
     }
     this.forceUpdate();
   }
+
   handleFilterChange(Event) {
     this.setState({ filterBy: Event.target.value })
-    this.setState({ filterInputValue: "" })
-    this.setState({ devices: this.state.tempDevices })
+    this.setState({ filterInputValue: '' })
+    this.setState({ devices: this.state.tempDevices.slice() })
     this.forceUpdate();
   }
   handleFilterData(Event) {
-    if (Event.target.value === '') {
-      this.setState({ devices: this.state.tempDevices })
-      this.setState({ filterInputValue: "" })
-      this.forceUpdate();
-    }
-    else {
-      this.setState({ filterInputValue: Event.target.value })
-      let pattern = Event.target.value;
-      this.setState({ devices: this.state.tempDevices })
-      let result = [];
-      if (this.state.filterBy === 'ID') result = this.state.devices.filter((element) => (element.deviceId != null) ? new RegExp(pattern).test(element.deviceId) : false);
-      if (this.state.filterBy === 'Owner') result = this.state.devices.filter((element) => (element.owner != null) ? new RegExp(pattern).test(element.owner.lastName) : false);
-      if (this.state.filterBy === 'IP') result = this.state.devices.filter((element) => (element.ipAddress != null) ? new RegExp(pattern).test(element.ipAddress) : false);
-      if (this.state.filterBy === 'AdName') result = this.state.devices.filter((element) => (element.adName != null) ? new RegExp(pattern).test(element.adName) : false);
-      this.setState({ devices: result })
-      this.forceUpdate();
-    }
+    let devices = this.state.tempDevices.slice();
+    this.setState({ filterInputValue: Event.target.value })
+    let pattern = "^" + Event.target.value;
+    let result = [];
+    if (this.state.filterBy === 'ID') { result = devices.filter((element) => new RegExp(pattern).test(element.deviceId)) }
+    else if (this.state.filterBy === 'Owner') { result = devices.filter((element) => new RegExp(pattern).test(element.owner.lastName)) }
+    else if (this.state.filterBy === 'IP') { result = devices.filter((element) => new RegExp(pattern).test(element.ipAddress)) };
+    this.setState({ devices: result })
   }
+
   componentDidMount() {
     const requestOptions = {
       headers: {
@@ -165,7 +163,8 @@ export class Device extends Component {
               <label class="input-group-text" for="inputGroupSelect01">Filtruj</label>
             </div>
             <select class="custom-select col-2" id="inputGroupSelect01" onChange={this.handleFilterChange}>
-              <option selected value="ID">ID</option>
+            <option selected disabled>Wybierz filtr</option>
+              <option value="ID">ID</option>
               <option value="Owner">Właściciel (nazwisko)</option>
               <option value="IP">IP</option>
             </select>
@@ -178,7 +177,7 @@ export class Device extends Component {
                 <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByType}>Typ</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByOwner}>Właściciel</button></th>
                 <th scope="col"><button type="button" class="btn btn-dark btn-block" onClick={this.handleSortByIP}>IP</button></th>
-                <th scope="col" colspan="2"><button type="button" class="btn btn-dark btn-block">Operacje</button></th>
+                <th scope="col" colspan="2"><button type="button" class="btn btn-dark btn-block" disabled>Operacje</button></th>
               </tr>
             </thead>
             <tbody>
@@ -193,21 +192,23 @@ export class Device extends Component {
                     : <td>-</td>
                   }
                   {device.owner != null
-                    ? <td><a href={Config.pageAddress + "/users/" + device.owner.identifier} class="btn btn-light">{device.owner.firstName} {device.owner.lastName}</a></td>
+                    ? <td><a href={Config.pageAddress + "/users/" + device.owner.identifier} class="btn btn-light btn-block">{device.owner.firstName} {device.owner.lastName}</a></td>
                     : <td>-</td>//Można dodać później przycisk, który pozwoli na późniejsze przypisywanie właściciela
                   }
                   {device.ipAddress
                     ? <td>{device.ipAddress}</td>
                     : <td>-</td>
                   }
-                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/"+device.deviceType.toLowerCase()+"s/" + device.identifier}>Szczegóły</a></td>
-                  <td><button class="btn btn-danger b-2" onClick={() => {
-                    this.handleDeleteClick(device.identifier);
+                  <td><a class="btn btn-info b-2 btn-block" href={Config.pageAddress + "/"+device.deviceType.toLowerCase()+"s/" + device.identifier}>Szczegóły</a></td>
+                  <td><button type="button" class="btn btn-danger b-2 btn-block" data-toggle="modal" data-target="#modalConfirmDelete" onClick={() => {
+                    this.setState({ itemToDelete: device })
                   }}>Usuń</button></td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <Modal header="Sukces" body={"Usunięto urządzenie: "+this.state.itemToDelete.deviceId} id="modalSuccess" />
+          <ModalConfirmDelete handleConfirmClick={this.handleDeleteClick} toDelete={"urządzenie o ID: "+this.state.itemToDelete.deviceId} />
         </div >
       );
     }

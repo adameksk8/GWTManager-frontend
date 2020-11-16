@@ -99,24 +99,22 @@ export class Switches extends Component {
     this.setState({ switches: this.state.tempSwitches })
     this.forceUpdate();
   }
-  handleFilterData(Event) {
-    if (Event.target.value === '') {
-      this.setState({ switches: this.state.tempSwitches })
-      this.setState({ filterInputValue: "" })
-      this.forceUpdate();
-    }
-    else {
-      this.setState({ filterInputValue: Event.target.value })
-      let pattern = Event.target.value;
-      this.setState({ switches: this.state.tempSwitches })
-      let result = [];
-      if (this.state.filterBy === 'ID') result = this.state.switches.filter((element) => (element.deviceId != null) ? new RegExp(pattern).test(element.deviceId) : false);
-      if (this.state.filterBy === 'Owner') result = this.state.switches.filter((element) => (element.owner != null) ? new RegExp(pattern).test(element.owner.lastName) : false);
-      if (this.state.filterBy === 'IP') result = this.state.switches.filter((element) => (element.ipAddress != null) ? new RegExp(pattern).test(element.ipAddress) : false);
-      if (this.state.filterBy === 'MAC') result = this.state.switches.filter((element) => (element.macAddress != null) ? new RegExp(pattern).test(element.macAddress) : false);
-      this.setState({ switches: result })
-      this.forceUpdate();
-    }
+  handleFilterChange=(Event)=> {
+    this.setState({ filterBy: Event.target.value })
+    this.setState({ filterInputValue: '' })
+    this.setState({ devices: this.state.tempSwitches.slice() })
+    this.forceUpdate();
+  }
+  handleFilterData=(Event) =>{
+    let switches = this.state.tempSwitches.slice();
+    this.setState({ filterInputValue: Event.target.value })
+    let pattern = "^" + Event.target.value;
+    let result = [];
+    if (this.state.filterBy === 'ID') { result = switches.filter((element) => new RegExp(pattern).test(element.deviceId)) }
+    else if (this.state.filterBy === 'Owner') { result = switches.filter((element) => new RegExp(pattern).test(element.owner.lastName)) }
+    else if (this.state.filterBy === 'IP') { result = switches.filter((element) => new RegExp(pattern).test(element.ipAddress)) }
+    else if (this.state.filterBy === 'MAC') { result = switches.filter((element) => new RegExp(pattern).test(element.macAddress)) }
+    this.setState({ switches: result })
   }
   componentDidMount() {
     const requestOptions = {
@@ -162,7 +160,8 @@ export class Switches extends Component {
               <label class="input-group-text" for="inputGroupSelect01">Filtruj</label>
             </div>
             <select class="custom-select col-2" id="inputGroupSelect01" onChange={this.handleFilterChange}>
-              <option selected value="ID">ID</option>
+            <option selected disabled>Wybierz filtr</option>
+              <option value="ID">ID</option>
               <option value="Owner">Właściciel (nazwisko)</option>
               <option value="IP">IP</option>
               <option value="MAC">MAC</option>
@@ -200,8 +199,8 @@ export class Switches extends Component {
                     ? <td>{device.macAddress}</td>
                     : <td>-</td>
                   }
-                  <td><a class="btn btn-info b-2" href={Config.pageAddress + "/switches/" + device.identifier}>Szczegóły</a></td>
-                  <td><button class="btn btn-danger b-2" onClick={() => {
+                  <td><a class="btn btn-info b-2 btn-block" href={Config.pageAddress + "/switches/" + device.identifier}>Szczegóły</a></td>
+                  <td><button class="btn btn-danger b-2 btn-block" onClick={() => {
                     this.handleDeleteClick(device.identifier);
                   }}>Usuń</button></td>
                 </tr>
